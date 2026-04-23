@@ -180,6 +180,17 @@ function getRoute() {
 function Navbar({ isLoggedIn = false }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Обработчик для кнопки "Войти"
+  const handleLoginClick = (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    if (token) {
+      window.location.hash = routes.cabinet;
+    } else {
+      window.location.hash = routes.login;
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="container">
@@ -200,7 +211,7 @@ function Navbar({ isLoggedIn = false }) {
               </>
             ) : (
               <>
-                <a href={routes.login} className="btn btn-ghost btn-small" style={{ textDecoration: 'none' }}>Войти</a>
+                <a href={routes.login} className="btn btn-ghost btn-small" style={{ textDecoration: 'none' }} onClick={handleLoginClick}>Войти</a>
                 <a href={routes.register} className="btn btn-primary btn-small">Создать аккаунт</a>
               </>
             )}
@@ -831,6 +842,15 @@ function Cabinet() {
               Настройки
             </a>
           </li>
+          <li style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: 'var(--spacing-lg)', marginTop: 'var(--spacing-lg)' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: '8px', padding: 'var(--spacing-lg)', marginBottom: 'var(--spacing-lg)', cursor: 'pointer', transition: 'background 0.3s ease' }}>
+              <p style={{ margin: '0 0 var(--spacing-lg) 0', fontSize: '14px', fontWeight: '600', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Токены</span>
+                <span style={{ fontSize: '14px', fontWeight: '600', color: 'white' }}>1000</span>
+              </p>
+              <button className="btn btn-primary" style={{ width: '100%', fontSize: '14px' }}>Пополнить</button>
+            </div>
+          </li>
           <li className="sidebar-footer">
             <div className="theme-toggle">
               <button
@@ -932,19 +952,14 @@ function Cabinet() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Выберите стандарт</label>
-                  <select 
-                    className="form-select"
-                    value={selectedGost}
-                    onChange={(e) => setSelectedGost(e.target.value)}
-                    disabled={processing}
-                  >
-                    {GOST_LIST.map((gost) => (
-                      <option key={gost.id} value={gost.id}>
-                        {gost.name}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="form-label">Стандарт</label>
+                  <input 
+                    type="text"
+                    className="form-input"
+                    value="ГОСТ 7.32-2017"
+                    disabled
+                    style={{ backgroundColor: 'var(--color-bg-secondary)', cursor: 'not-allowed' }}
+                  />
                 </div>
 
                 <button 

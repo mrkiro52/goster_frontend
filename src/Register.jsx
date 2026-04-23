@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from './config/api';
 
 const routes = {
   home: '#/',
@@ -64,7 +65,7 @@ export function Register({ onSuccess }) {
     console.log('Пароль: ***');
 
     try {
-      const apiUrl = 'http://апи.гостер.рф/api/register';
+      const apiUrl = `${API_BASE_URL}/register`;
       console.log('📤 Отправка запроса на:', apiUrl);
       
       const payload = { email, password, role: 'user' };
@@ -111,17 +112,22 @@ export function Register({ onSuccess }) {
       <Navbar />
       <div style={{ minHeight: 'calc(100vh - 70px)', display: 'grid', placeItems: 'center', padding: 'var(--spacing-2xl)' }}>
         <div className="card" style={{ maxWidth: '400px', width: '100%' }}>
-          <h1 style={{ fontSize: '32px', marginBottom: 'var(--spacing-lg)' }}>Регистрация</h1>
-          <p style={{ marginBottom: 'var(--spacing-2xl)' }}>Создайте новый аккаунт</p>
-          <form onSubmit={handleSubmit}>
+          <h1 style={{ fontSize: '32px', marginBottom: 'var(--spacing-md)' }}>Регистрация</h1>
+          <p style={{ marginBottom: 'var(--spacing-lg)' }}>Создайте новый аккаунт</p>
+          <form onSubmit={handleSubmit} autoComplete="on">
             <div className="form-group">
               <label className="form-label">Email</label>
               <input
                 type="email"
+                name="email"
                 className="form-input"
                 placeholder="student@mail.ru"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
                 disabled={loading}
               />
@@ -130,10 +136,12 @@ export function Register({ onSuccess }) {
               <label className="form-label">Пароль</label>
               <input
                 type="password"
+                name="password"
                 className="form-input"
                 placeholder="••••••••"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                autoComplete="new-password"
                 required
                 disabled={loading}
               />
@@ -142,10 +150,12 @@ export function Register({ onSuccess }) {
               <label className="form-label">Подтверждение пароля</label>
               <input
                 type="password"
+                name="confirmPassword"
                 className="form-input"
                 placeholder="••••••••"
                 value={passwordConfirm}
                 onChange={e => setPasswordConfirm(e.target.value)}
+                autoComplete="new-password"
                 required
                 disabled={loading}
                 style={{ borderColor: passwordMismatch ? '#DC2626' : undefined }}
@@ -153,14 +163,13 @@ export function Register({ onSuccess }) {
             </div>
             {error && <div className="form-error" style={{ color: '#DC2626', marginBottom: 12 }}>{error}</div>}
             {success && <div className="form-success" style={{ color: '#16A34A', marginBottom: 12 }}>✅ Аккаунт успешно создан! Авторизуйтесь и начните работать.</div>}
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: 'var(--spacing-lg)' }} disabled={loading}>
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: 'var(--spacing-md)' }} disabled={loading}>
               {loading ? 'Регистрация...' : 'Зарегистрироваться'}
             </button>
           </form>
-          <p style={{ textAlign: 'center', marginTop: 'var(--spacing-lg)', color: 'var(--color-text-secondary)' }}>
+          <p style={{ textAlign: 'center', marginTop: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
             Есть аккаунт? <a href={routes.login} style={{ color: 'var(--color-primary)', textDecoration: 'none', fontWeight: '600' }}>Войти</a>
           </p>
-          <a href={routes.home} className="btn btn-ghost">← На главную</a>
         </div>
       </div>
     </>

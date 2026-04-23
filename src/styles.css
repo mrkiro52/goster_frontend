@@ -1104,7 +1104,11 @@ p {
   transition: all var(--transition);
 }
 
-.sidebar-menu a:hover,
+.sidebar-menu a:hover {
+  background-color: rgba(10, 88, 202, 0.2);
+  color: white;
+}
+
 .sidebar-menu a.active {
   background-color: var(--color-primary);
   color: white;

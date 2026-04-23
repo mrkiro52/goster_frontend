@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from './config/api';
 
 const routes = {
   home: '#/',
@@ -45,7 +46,7 @@ export function LoginPage() {
     console.log('Email:', email);
 
     try {
-      const apiUrl = 'http://апи.гостер.рф/api/login';
+      const apiUrl = `${API_BASE_URL}/login`;
       console.log('📤 Отправка запроса на:', apiUrl);
       
       const res = await fetch(apiUrl, {
@@ -89,17 +90,22 @@ export function LoginPage() {
       <Navbar />
       <div style={{ minHeight: 'calc(100vh - 70px)', display: 'grid', placeItems: 'center', padding: 'var(--spacing-2xl)' }}>
         <div className="card" style={{ maxWidth: '400px', width: '100%' }}>
-          <h1 style={{ fontSize: '32px', marginBottom: 'var(--spacing-lg)' }}>Вход</h1>
-          <p style={{ marginBottom: 'var(--spacing-2xl)' }}>Введите данные для входа в личный кабинет</p>
-          <form onSubmit={handleLogin}>
+          <h1 style={{ fontSize: '32px', marginBottom: 'var(--spacing-md)' }}>Вход</h1>
+          <p style={{ marginBottom: 'var(--spacing-lg)' }}>Введите данные для входа в личный кабинет</p>
+          <form onSubmit={handleLogin} autoComplete="on">
             <div className="form-group">
               <label className="form-label">Email</label>
               <input
                 type="email"
+                name="email"
                 className="form-input"
                 placeholder="student@mail.ru"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
                 disabled={loading}
               />
@@ -108,23 +114,24 @@ export function LoginPage() {
               <label className="form-label">Пароль</label>
               <input
                 type="password"
+                name="password"
                 className="form-input"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 required
                 disabled={loading}
               />
             </div>
             {error && <div className="form-error" style={{ color: '#DC2626', marginBottom: 12 }}>{error}</div>}
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: 'var(--spacing-lg)' }} disabled={loading}>
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: 'var(--spacing-md)' }} disabled={loading}>
               {loading ? 'Вход...' : 'Войти'}
             </button>
           </form>
-          <p style={{ textAlign: 'center', marginTop: 'var(--spacing-lg)', color: 'var(--color-text-secondary)' }}>
+          <p style={{ textAlign: 'center', marginTop: 'var(--spacing-md)', color: 'var(--color-text-secondary)' }}>
             Нет аккаунта? <a href={routes.register} style={{ color: 'var(--color-primary)', textDecoration: 'none', fontWeight: '600' }}>Зарегистрироваться</a>
           </p>
-          <a href={routes.home} className="btn btn-ghost">← На главную</a>
         </div>
       </div>
     </>
