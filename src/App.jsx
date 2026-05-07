@@ -1,443 +1,854 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Register } from './Register';
 import { LoginPage } from './Login';
+import { Navbar } from './Navbar';
 
-// GOST Standards
-const GOST_LIST = [
-  { id: 'gost-7.32', name: 'ГОСТ 7.32-2017', desc: 'Отчёт о научно-исследовательской работе' },
-  { id: 'gost-2.105', name: 'ГОСТ 2.105-95', desc: 'ЕСКД. Общие требования к текстовым документам' },
-  { id: 'gost-7.0.11', name: 'ГОСТ Р 7.0.11-2011', desc: 'Диссертация и автореферат' },
-  { id: 'gost-7.1', name: 'ГОСТ 7.1-2003', desc: 'Библиографическая запись' },
-  { id: 'iso-690', name: 'ISO 690', desc: 'Международный стандарт' },
-];
-
-const FOUNDERS = [
-  {
-    id: 1,
-    name: 'Вероника Болтенкова',
-    role: 'Основатель',
-    description: 'Студентка ИТМО, разработала концепцию GOSTER для решения проблем с форматированием ВКР',
-    icon: '👩‍💼',
-  },
-  {
-    id: 2,
-    name: 'Киреев Ханиль',
-    role: 'Руководитель IT',
-    description: 'Студент ИТМО, реализовал техническую архитектуру и разработку платформы',
-    icon: '👨‍💻',
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    id: 1,
-    author: 'Иван Иванов',
-    institution: 'МГУ им. Ломоносова',
-    text: 'Сэкономил 20 часов на форматирование ВКР. Сервис просто супер!',
-    rating: 5,
-  },
-  {
-    id: 2,
-    author: 'Мария Петрова',
-    institution: 'СПбГУ',
-    text: 'Все требования ГОСТ соблюдены идеально. Больше не обращаюсь к преподавателям за переделкой.',
-    rating: 5,
-  },
-  {
-    id: 3,
-    author: 'Александр Сидоров',
-    institution: 'ВШЭ',
-    text: 'Быстро, удобно, надёжно. Рекомендую всем студентам!',
-    rating: 5,
-  },
-];
-
-const FAQ_ITEMS = [
-  {
-    id: 1,
-    question: 'Какие форматы файлов поддерживаются?',
-    answer: 'Мы поддерживаем DOCX (Microsoft Word) и PDF. Рекомендуется использовать DOCX для максимальной точности форматирования.',
-  },
-  {
-    id: 2,
-    question: 'Сколько бесплатных попыток?',
-    answer: 'Первые 3 документа абсолютно бесплатны. Для неограниченного доступа подпишитесь на один из наших тарифов.',
-  },
-  {
-    id: 3,
-    question: 'Мои документы в безопасности?',
-    answer: 'Да! Мы используем шифрование SSL, файлы удаляются через 24 часа, не передаются третьим лицам.',
-  },
-  {
-    id: 4,
-    question: 'Могу ли я использовать требования своего вуза?',
-    answer: 'Да, вы можете загрузить кастомный шаблон или выбрать готовый из базы (МГУ, СПбГУ, ВШЭ и др.)',
-  },
-  {
-    id: 5,
-    question: 'Что делать, если система не распознала оглавление?',
-    answer: 'Убедитесь, что используете встроенные стили Word для заголовков. Если проблема сохраняется, свяжитесь с поддержкой.',
-  },
-];
-
-const PRICING_PLANS = [
-  {
-    id: 'free',
-    name: 'Бесплатно',
-    price: '0',
-    period: 'навсегда',
-    description: 'Для первых проб',
-    features: [
-      'Загрузка любого DOCX файла',
-      'Полная проверка по ГОСТ',
-      'Разбор всех ошибок',
-      'Рекомендации по исправлению',
-      'Без ограничений',
-    ],
-    highlighted: false,
-  },
-  {
-    id: 'student',
-    name: 'Студентам',
-    price: '499',
-    period: 'за токен',
-    description: 'Для полного форматирования',
-    features: [
-      'Автоматическое форматирование',
-      'Готовый файл к сдаче',
-      'Все ГОСТ стандарты',
-      'История всех преобразований',
-      'Приоритетная поддержка',
-    ],
-    highlighted: true,
-    bundles: [
-      { tokens: 3, price: 1299, discount: 13.3 },
-      { tokens: 10, price: 3999, discount: 19.9 },
-    ],
-  },
-  {
-    id: 'business',
-    name: 'Для компаний',
-    price: '990',
-    period: 'в месяц',
-    description: 'Для коллективной работы',
-    features: [
-      'Неограниченные документы',
-      'API интеграция',
-      'Командная работа (до 10 пользователей)',
-      'Кастомные шаблоны',
-      'Техническая поддержка 24/7',
-    ],
-    highlighted: false,
-  },
-];
+// ============================================================
+//  DATA
+// ============================================================
 
 const routes = {
   home: '#/',
   login: '#/login',
   register: '#/register',
   cabinet: '#/cabinet',
+  students: '#/students',
+  business: '#/business',
+  universities: '#/universities',
 };
 
-const initialHistory = [
+const TESTIMONIALS = [
   {
-    id: 'd1',
-    original: 'vkr_ivanov_v1.docx',
-    formatted: 'vkr_ivanov_v1_gost732.docx',
-    datetime: '30.03.2026 10:42',
+    id: 1,
+    author: 'София В.',
+    uni: 'МГУ, факультет психологии',
+    text: 'Начала переделывать диплом в последний день перед защитой. GOSTER спас мне — за 5 минут всё было готово. Преподавательница даже замечаний не нашла.',
+    rating: 5,
   },
   {
-    id: 'd2',
-    original: 'diplom_petrov_final.docx',
-    formatted: 'diplom_petrov_final_gost732.docx',
-    datetime: '29.03.2026 18:11',
+    id: 2,
+    author: 'Максим К.',
+    uni: 'СПбГУ, кафедра информатики',
+    text: 'Загрузил 100-страничный диплом, система нашла 47 ошибок форматирования. После исправления — идеально по ГОСТу. Реально спасает при дедлайнах.',
+    rating: 5,
   },
   {
-    id: 'd3',
-    original: 'nir_sidorova.docx',
-    formatted: 'nir_sidorova_gost732.docx',
-    datetime: '28.03.2026 13:25',
+    id: 3,
+    author: 'Екатерина З.',
+    uni: 'ВШЭ, магистратура',
+    text: 'Скептически относилась, но после первого использования уже всем подругам рекомендую. 499 рублей — ничто по сравнению со сэкономленными нервами.',
+    rating: 5,
+  },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: 'За сколько я получу отформатированный файл?',
+    a: 'Система работает за 30–60 секунд. Загружаете DOCX — получаете готовый документ, полностью соответствующий ГОСТ 7.32-2017. Скачивайте и сдавайте.',
+  },
+  {
+    q: 'Что именно форматирует GOSTER по ГОСТ 7.32?',
+    a: 'Поля (20/20/30/15 мм), шрифт Times New Roman 14pt, межстрочный интервал 1.5, абзацный отступ 1.25 см, нумерацию страниц, автоматическое оглавление, стили заголовков, оформление списков и ссылок на литературу.',
+  },
+  {
+    q: 'Если преподаватель найдёт ошибки форматирования — вернёте токен?',
+    a: 'Да. Мы гарантируем 100% соответствие ГОСТ 7.32-2017. Если преподаватель найдёт замечания именно по форматированию (не содержанию) — вернём токен или переделаем бесплатно.',
+  },
+  {
+    q: 'Диплом содержит формулы, таблицы и рисунки — справитесь?',
+    a: 'Да. Система форматирует формулы, таблицы, рисунки, списки, сноски, библиографические ссылки. Сложные структуры обрабатываются автоматически.',
+  },
+  {
+    q: 'Мой диплом останется конфиденциальным?',
+    a: 'Абсолютно. Файлы зашифрованы при передаче, обрабатываются в изолированной среде и автоматически удаляются через 24 часа. Мы не читаем содержимое документов.',
+  },
+  {
+    q: 'Какие форматы поддерживаются?',
+    a: 'Загрузка: DOCX и PDF. Выгрузка: DOCX. Максимальный размер файла — 50 МБ. Для очень больших файлов рекомендуем разбить на части.',
+  },
+];
+
+const GOST_SPECS = [
+  {
+    icon: '📐',
+    title: 'Поля страницы',
+    value: 'Верх 20 мм · Низ 20 мм · Лево 30 мм · Право 15 мм',
+    color: '#4F46E5',
+  },
+  {
+    icon: '🔤',
+    title: 'Основной шрифт',
+    value: 'Times New Roman, кегль 14, обычное начертание',
+    color: '#7C3AED',
+  },
+  {
+    icon: '↕️',
+    title: 'Межстрочный интервал',
+    value: 'Полуторный (1.5) для основного текста',
+    color: '#0EA5E9',
+  },
+  {
+    icon: '⇥',
+    title: 'Абзацный отступ',
+    value: 'Первая строка 1.25 см, выравнивание по ширине',
+    color: '#10B981',
+  },
+  {
+    icon: '🔢',
+    title: 'Нумерация страниц',
+    value: 'Арабские цифры, внизу по центру, с 3-й страницы',
+    color: '#F59E0B',
+  },
+  {
+    icon: '📋',
+    title: 'Оглавление',
+    value: 'Автоматическое, с номерами страниц по точкам',
+    color: '#EF4444',
+  },
+  {
+    icon: '📝',
+    title: 'Заголовки разделов',
+    value: 'Прописные, жирный, по центру или с отступа',
+    color: '#8B5CF6',
+  },
+  {
+    icon: '📚',
+    title: 'Список литературы',
+    value: 'По ГОСТ 7.1-2003, в алфавитном порядке',
+    color: '#06B6D4',
+  },
+  {
+    icon: '📊',
+    title: 'Таблицы и рисунки',
+    value: 'Подписи по ГОСТ, нумерация в пределах разделов',
+    color: '#EC4899',
+  },
+];
+
+const FEATURES = [
+  {
+    title: 'Мгновенный результат',
+    desc: 'Загрузите DOCX — через 30 секунд получите полностью отформатированный документ, готовый к сдаче.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </svg>
+    ),
+  },
+  {
+    title: '100% соответствие ГОСТ',
+    desc: 'Каждый параметр документа проверяется по официальным требованиям ГОСТ 7.32-2017.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
+  },
+  {
+    title: 'Не нужен Word',
+    desc: 'Работаем с вашим файлом на сервере. Не нужно ничего устанавливать — только браузер.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+        <line x1="8" y1="21" x2="16" y2="21"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+    ),
+  },
+  {
+    title: 'Сохраняет содержимое',
+    desc: 'Текст, формулы, таблицы и изображения остаются нетронутыми. Меняется только оформление.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    ),
+  },
+  {
+    title: 'Конфиденциальность',
+    desc: 'Файлы зашифрованы и автоматически удаляются через 24 часа. Никто не читает ваш диплом.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    ),
+  },
+  {
+    title: 'История документов',
+    desc: 'Все отформатированные файлы хранятся в личном кабинете. Скачивайте в любой момент.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+        <polyline points="13 2 13 9 20 9"/>
+      </svg>
+    ),
   },
 ];
 
 const pipelineSteps = [
   'Загрузка документа и проверка структуры',
-  'Определение и нормализация стилей заголовков',
-  'Применение полей, шрифтов и межстрочных интервалов',
-  'Форматирование списков и абзацев по ГОСТ 7.32',
-  'Пересборка оглавления и проверка нумерации страниц',
-  'Финальная валидация документа',
-  'Готово! Файл можно скачивать',
+  'Нормализация стилей заголовков',
+  'Установка полей и параметров страницы',
+  'Применение шрифтов и межстрочных интервалов',
+  'Форматирование абзацев и списков',
+  'Пересборка оглавления с нумерацией',
+  'Финальная валидация — ГОСТ 7.32-2017',
+];
+
+const initialDocs = [
+  { id: 'd1', name: 'vkr_ivanov_v1.docx', status: 'ready', date: '30.03.2026 10:42' },
+  { id: 'd2', name: 'diplom_petrov_final.docx', status: 'ready', date: '29.03.2026 18:11' },
+  { id: 'd3', name: 'nir_sidorova.docx', status: 'ready', date: '28.03.2026 13:25' },
 ];
 
 function getRoute() {
-  const hash = window.location.hash || routes.home;
-  return [routes.home, routes.login, routes.register, routes.cabinet].includes(hash) ? hash : routes.home;
+  const h = window.location.hash || routes.home;
+  const valid = [routes.home, routes.login, routes.register, routes.cabinet,
+    routes.students, routes.business, routes.universities];
+  return valid.includes(h) ? h : routes.home;
 }
 
-// ===== Components =====
+// ============================================================
+//  SVG HELPERS
+// ============================================================
 
-function Navbar({ isLoggedIn = false }) {
-  const [isOpen, setIsOpen] = useState(false);
+const CheckCircle = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
 
-  // Обработчик для кнопки "Войти"
-  const handleLoginClick = (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem('token');
-    if (token) {
-      window.location.hash = routes.cabinet;
-    } else {
-      window.location.hash = routes.login;
-    }
-  };
+const ChevronDown = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+);
 
-  return (
-    <nav className="navbar">
-      <div className="container">
-        <div className="navbar-content">
-          <a href={routes.home} className="navbar-logo">
-            GOSTER
-          </a>
-          <ul className="navbar-nav">
-            <li><a href="#features">Возможности</a></li>
-            <li><a href="#pricing">Токены</a></li>
-            <li><a href="#faq">FAQ</a></li>
-          </ul>
-          <div className="navbar-actions">
-            {isLoggedIn ? (
-              <>
-                <a href={routes.cabinet} className="btn btn-ghost btn-small">Кабинет</a>
-                <a href={routes.home} className="btn btn-ghost btn-small">Выйти</a>
-              </>
-            ) : (
-              <>
-                <a href={routes.login} className="btn btn-ghost btn-small" style={{ textDecoration: 'none' }} onClick={handleLoginClick}>Войти</a>
-                <a href={routes.register} className="btn btn-primary btn-small">Создать аккаунт</a>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
-function Header() {
-  return (
-    <header className="topbar">
-      <div className="logo">GOSTER</div>
-      <div className="topbar-actions">
-        <a className="btn btn-ghost" href={routes.login}>Войти</a>
-        <a className="btn btn-primary" href={routes.register}>Создать аккаунт</a>
-      </div>
-    </header>
-  );
-}
+// ============================================================
+//  LANDING
+// ============================================================
 
 function Landing() {
   return (
     <>
       <Navbar />
       <Hero />
+      <StatsBar />
       <HowItWorks />
-      <Features />
-      <SegmentFeatures />
-      <StandardsList />
+      <GostSpecs />
+      <FreeCheckBlock />
+      <WhyGoster />
       <Testimonials />
       <Pricing />
       <FAQ />
-      <Founders />
-      <CTA />
-      <footer style={{ background: 'var(--color-dark)', color: 'white', padding: 'var(--spacing-3xl) 0', textAlign: 'center' }}>
-        <p>&copy; 2026 GOSTER.io. Все права защищены.</p>
-      </footer>
+      <FinalCTA />
+      <Footer />
     </>
   );
 }
 
+// ============================================================
+//  HERO
+// ============================================================
+
 function Hero() {
   return (
     <section className="hero">
-      <div className="container">
-        <div className="hero-content">
-          <h1>Форматируй любые документы по ГОСТ за минуты, не за дни</h1>
-          <p>
-            Автоматическое оформление курсовых, дипломов, отчётов, научных статей 
-            и технической документации. Все требования ГОСТ соблюдены идеально.
+      <div className="hero-orb-1" />
+      <div className="hero-orb-2" />
+      <div className="hero-orb-3" />
+
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: '700px' }}>
+          {/* Badge */}
+          <div className="hero-badge">
+            <div className="hero-dot" />
+            ГОСТ 7.32-2017 · Автоматическое форматирование дипломов
+          </div>
+
+          {/* Headline */}
+          <h1 style={{ marginBottom: '20px' }}>
+            Диплом примут{' '}
+            <span className="text-gradient-hero">с первого раза</span>
+          </h1>
+
+          {/* Subheadline */}
+          <p style={{ fontSize: '1.125rem', marginBottom: '40px', maxWidth: '560px' }}>
+            Загружаете DOCX файл — через 30 секунд получаете идеально
+            отформатированный диплом. Поля, шрифты, интервалы, нумерация,
+            оглавление — всё по ГОСТ 7.32 автоматически.
           </p>
+
+          {/* CTAs */}
           <div className="hero-cta">
-            <a href={routes.login} className="btn btn-primary btn-large">
-              Попробовать бесплатно
+            <a href="#free-check" className="btn btn-white btn-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              Проверить бесплатно
             </a>
-            <a href="#how" className="btn btn-secondary btn-large" style={{ color: 'white', borderColor: 'white' }}>
-              Узнать больше
+            <a href={routes.register} className="btn btn-glass btn-lg">
+              Создать аккаунт
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
             </a>
           </div>
-          <div className="social-proof">
-            Уже 500+ студентов и компаний
+
+          {/* Stats */}
+          <div className="hero-stats">
+            {[
+              { num: '2 500+', label: 'дипломов отформатировано' },
+              { num: '98%', label: 'приняты без замечаний' },
+              { num: '30 сек', label: 'среднее время обработки' },
+              { num: 'ГОСТ 7.32', label: '100% соответствие' },
+            ].map((s) => (
+              <div key={s.num}>
+                <div className="hero-stat-num">{s.num}</div>
+                <div className="hero-stat-label">{s.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </section>
   );
 }
+
+// ============================================================
+//  STATS BAR
+// ============================================================
+
+function StatsBar() {
+  const stats = [
+    { num: '2 500+', label: 'Дипломов обработано' },
+    { num: '98%', label: 'Принято без замечаний' },
+    { num: '30 сек', label: 'Среднее время форматирования' },
+    { num: '100%', label: 'Соответствие ГОСТ 7.32' },
+  ];
+
+  return (
+    <div className="stats-bar">
+      <div className="container">
+        <div className="stats-bar-grid">
+          {stats.map((s) => (
+            <div key={s.num} style={{ padding: '8px 0' }}>
+              <div className="stat-num">{s.num}</div>
+              <div className="stat-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+//  HOW IT WORKS
+// ============================================================
 
 function HowItWorks() {
-  return (
-    <section id="how" className="section">
-      <div className="container">
-        <h2 className="section-title">Как это работает</h2>
-        <div className="steps-grid">
-          <article className="step">
-            <h3>Загрузите документ</h3>
-            <p>Загрузите вашу работу в формате DOCX. Система автоматически распознает структуру.</p>
-          </article>
-          <article className="step">
-            <h3>Получите разбор</h3>
-            <p>Мы проверим документ по всем требованиям ГОСТ, покажем все ошибки и как их исправить.</p>
-          </article>
-          <article className="step">
-            <h3>Готовый результат</h3>
-            <p>Получите отформатированный документ со всеми исправлениями. Готово к сдаче и защите!</p>
-          </article>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Features() {
-  const features = [
-    { title: 'Поля', desc: 'Автоматические поля документа: верхнее 30 мм, нижнее 20 мм, слева 20 мм, справа 15 мм — в точном соответствии с ГОСТ 7.32' },
-    { title: 'Шрифт', desc: 'Times New Roman, кегель 14pt для основного текста и 12pt для сносок и примечаний' },
-    { title: 'Межстрочный интервал', desc: 'Полуторный интервал (1.5) для всего документа, включая таблицы и списки' },
-    { title: 'Абзацный отступ', desc: 'Первая строка абзаца — 1.25 см (автоматически применяется ко всем параграфам)' },
-    { title: 'Нумерация страниц', desc: 'Страницы нумеруются арабскими цифрами в нижнем правом углу, начиная со второй страницы' },
-    { title: 'Заголовки', desc: 'Поддержка 6 уровней заголовков с автоматической нумерацией и форматированием' },
-    { title: 'Оглавление', desc: 'Автоматическое генерирование оглавления с указанием номеров страниц' },
-    { title: 'Список литературы', desc: 'Форматирование библиографических ссылок в соответствии с ГОСТ 7.1 и ГОСТ 7.0.5' },
-  ];
-
-  return (
-    <section id="features" className="section">
-      <div className="container">
-        <h2 className="section-title">Что форматирует GOSTER</h2>
-        <div className="features-grid-beautiful">
-          {features.map((feature, idx) => (
-            <div key={idx} className="feature-card-beautiful">
-              <div className="feature-icon">✓</div>
-              <h3>{feature.title}</h3>
-              <p>{feature.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function SegmentFeatures() {
-  const IconStudent = () => (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--color-primary)" strokeWidth="2">
-      <path d="M24 8L4 16v8c0 8 20 12 20 12s20-4 20-12v-8L24 8z"/>
-      <path d="M24 32v8"/>
-      <path d="M18 38h12"/>
-    </svg>
-  );
-
-  const IconUniversity = () => (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--color-primary)" strokeWidth="2">
-      <path d="M8 16h32L24 6l-16 10z"/>
-      <path d="M8 16v20c0 2 4 4 16 4s16-2 16-4V16"/>
-      <rect x="12" y="22" width="5" height="8"/>
-      <rect x="31" y="22" width="5" height="8"/>
-      <rect x="21" y="26" width="6" height="4"/>
-    </svg>
-  );
-
-  const IconBusiness = () => (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--color-primary)" strokeWidth="2">
-      <rect x="8" y="12" width="32" height="24" rx="2"/>
-      <path d="M14 12v-4h20v4"/>
-      <rect x="12" y="20" width="4" height="10"/>
-      <rect x="20" y="18" width="4" height="12"/>
-      <rect x="28" y="22" width="4" height="8"/>
-    </svg>
-  );
-
-  const IconScience = () => (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--color-primary)" strokeWidth="2">
-      <circle cx="24" cy="24" r="12"/>
-      <circle cx="24" cy="8" r="2"/>
-      <circle cx="36" cy="32" r="2"/>
-      <circle cx="12" cy="32" r="2"/>
-      <path d="M24 24L24 8M24 24L36 32M24 24L12 32"/>
-    </svg>
-  );
-
-  const segments = [
+  const steps = [
     {
-      title: 'Студентам',
-      icon: <IconStudent />,
-      desc: 'Быстро оформите курсовую, ВКР или диплом без стресса. Экономьте время на форматирование и сосредоточьтесь на содержании работы. Автоматическая проверка всех требований ГОСТ гарантирует, что ваша работа не будет отправлена на переделку.',
-      features: ['Экономия 20+ часов на форматирование', 'Автоматическая проверка по требованиям ГОСТ', 'Подходит для курсовых, дипломов, ВКР и отчётов', 'Скидка 30% на годовую подписку для студентов', 'Поддержка требований вашего вуза'],
+      num: '01',
+      title: 'Загрузите файл',
+      desc: 'Выберите DOCX или PDF файл вашего диплома. Размер до 50 МБ, любой объём.',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+          <polyline points="13 2 13 9 20 9"/>
+        </svg>
+      ),
     },
     {
-      title: 'Университетам',
-      icon: <IconUniversity />,
-      desc: 'Установите единые стандарты оформления для всех студентов и кафедр. Снизьте нагрузку на преподавателей, исключив необходимость проверки форматирования. Интегрируйте GOSTER в вашу систему управления обучением.',
-      features: ['Единые требования для всех студентов', 'Автоматическая проверка работ преподавателями', 'Интеграция с популярными LMS (Moodle, Canvas)', 'Командные аккаунты для факультетов и кафедр', 'Расширенная аналитика использования', 'Техническая поддержка для учреждения'],
+      num: '02',
+      title: 'Система форматирует',
+      desc: 'За 30 секунд применяем все требования ГОСТ 7.32: поля, шрифты, интервалы, оглавление, нумерацию.',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+      ),
     },
     {
-      title: 'Компаниям',
-      icon: <IconBusiness />,
-      desc: 'Автоматизируйте оформление технической документации, отчётов и коммерческих предложений. Все документы будут соответствовать ГОСТ 2.105 и внутренним стандартам компании. Масштабируемое решение для любого размера организации.',
-      features: ['Оформление технических условий (ТУ) и паспортов изделий', 'Форматирование по ГОСТ 2.105 (ЕСКД)', 'Корпоративные тарифы с оптовой скидкой', 'API для интеграции в ваши системы', 'Кастомные шаблоны с логотипом компании', 'Управление доступом для команды'],
-    },
-    {
-      title: 'Учёным',
-      icon: <IconScience />,
-      desc: 'Подготовьте диссертацию, научную статью или отчёт по НИР в соответствии с высочайшими стандартами оформления. Экспортируйте библиографию в BibTeX для удобной работы с научными системами. Минимизируйте время на технические детали оформления.',
-      features: ['Форматирование диссертаций и авторефератов', 'Научные статьи по ГОСТ 7.32 и ISO 690', 'Экспорт библиографии в BibTeX и другие форматы', 'Автоматическое оформление НИР отчётов', 'Интеграция с базами цитирования (PubMed, arXiv)', 'Архивирование и версионирование результатов'],
+      num: '03',
+      title: 'Скачайте результат',
+      desc: 'Получаете готовый DOCX файл. Открываете в Word — всё идеально. Сдаёте на проверку.',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      ),
     },
   ];
 
   return (
-    <section className="section">
+    <section className="section" style={{ background: 'var(--bg-alt)' }} id="how">
       <div className="container">
-        <h2 className="section-title">Для каждого есть решение</h2>
-        <div className="segments-grid">
-          {segments.map((seg, idx) => (
-            <div key={idx} className="segment-card">
-              <div className="segment-icon">{seg.icon}</div>
-              <h3>{seg.title}</h3>
-              <p className="segment-desc">{seg.desc}</p>
-              <ul className="segment-features">
-                {seg.features.map((feature, i) => (
-                  <li key={i}>{feature}</li>
-                ))}
-              </ul>
+        {/* Header */}
+        <div style={{ maxWidth: '560px', marginBottom: '56px' }}>
+          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Как это работает</div>
+          <h2 style={{ marginBottom: '12px' }}>3 шага до идеального диплома</h2>
+          <p style={{ fontSize: '1.0625rem' }}>
+            Никакой установки, никаких настроек. Загрузили файл — скачали результат.
+          </p>
+        </div>
+
+        {/* Steps */}
+        <div className="grid-3">
+          {steps.map((s) => (
+            <div key={s.num} style={{
+              background: 'white',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--r-xl)',
+              padding: '32px',
+              position: 'relative',
+              transition: 'all var(--t)',
+            }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(79,70,229,0.4)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(79,70,229,0.1)';
+                e.currentTarget.style.transform = 'translateY(-4px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'none';
+              }}
+            >
+              <div className="step-num">{s.num}</div>
+              <div className="step-icon">{s.icon}</div>
+              <h3 style={{ fontSize: '1.1875rem', marginBottom: '10px' }}>{s.title}</h3>
+              <p style={{ fontSize: '14.5px', lineHeight: '1.65' }}>{s.desc}</p>
             </div>
           ))}
+        </div>
+
+        {/* CTA below */}
+        <div style={{ textAlign: 'center', marginTop: '48px' }}>
+          <a href="#free-check" className="btn btn-primary btn-lg">
+            Попробовать прямо сейчас — бесплатно
+          </a>
         </div>
       </div>
     </section>
   );
 }
 
-function Founders() {
+// ============================================================
+//  GOST SPECS
+// ============================================================
+
+function GostSpecs() {
   return (
-    <section className="section" style={{ backgroundColor: 'var(--color-light)' }}>
+    <section className="section" style={{ background: 'white' }}>
       <div className="container">
-        <h2 className="section-title">Авторы проекта</h2>
-        <p style={{ textAlign: 'center', marginBottom: 'var(--spacing-3xl)', color: 'var(--color-text-secondary)', fontSize: '18px' }}>Два студента ИТМО создали инструмент, который помогает тысячам студентов сэкономить время на форматирование</p>
-        <div className="founders-grid">
-          {FOUNDERS.map((founder) => (
-            <div key={founder.id} className="founder-card">
-              <div className="founder-icon">{founder.icon}</div>
-              <h3>{founder.name}</h3>
-              <p className="founder-role">{founder.role}</p>
-              <p className="founder-desc">{founder.description}</p>
+        {/* Header */}
+        <div style={{ maxWidth: '640px', marginBottom: '56px' }}>
+          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>ГОСТ 7.32-2017</div>
+          <h2 style={{ marginBottom: '12px' }}>
+            Что GOSTER форматирует автоматически
+          </h2>
+          <p style={{ fontSize: '1.0625rem' }}>
+            Все параметры, которые нормоконтролёр проверяет при сдаче ВКР, —
+            применяются одним нажатием кнопки.
+          </p>
+        </div>
+
+        {/* Specs grid */}
+        <div className="spec-grid">
+          {GOST_SPECS.map((s) => (
+            <div key={s.title} className="spec-card">
+              <div className="spec-card-icon" style={{
+                background: `${s.color}15`,
+                color: s.color,
+              }}>
+                <span style={{ fontSize: '22px' }}>{s.icon}</span>
+              </div>
+              <h4 style={{ marginBottom: '6px', fontSize: '14.5px' }}>{s.title}</h4>
+              <p style={{ fontSize: '13px', lineHeight: '1.55', color: 'var(--text-muted)' }}>{s.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom note */}
+        <div style={{
+          background: 'linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%)',
+          border: '1px solid rgba(79,70,229,0.2)',
+          borderRadius: 'var(--r-xl)',
+          padding: '28px 32px',
+          marginTop: '40px',
+          display: 'flex',
+          gap: '20px',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
+        }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: 'var(--r-md)',
+            background: 'var(--color-primary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            color: 'white',
+          }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1, minWidth: '200px' }}>
+            <h4 style={{ marginBottom: '6px', color: 'var(--color-primary)' }}>Гарантия соответствия ГОСТ</h4>
+            <p style={{ fontSize: '14px', margin: 0 }}>
+              Если нормоконтролёр найдёт ошибки форматирования в документе, обработанном GOSTER, — возвращаем токен или переделываем бесплатно. Без споров.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============================================================
+//  FREE CHECK
+// ============================================================
+
+function FreeCheckBlock() {
+  const [fileName, setFileName] = useState('');
+  const [checking, setChecking] = useState(false);
+  const [results, setResults] = useState(null);
+  const [drag, setDrag] = useState(false);
+
+  const handleCheck = (e) => {
+    e.preventDefault();
+    if (!fileName) return;
+    setChecking(true);
+    setResults(null);
+
+    setTimeout(() => {
+      setResults({
+        score: 62,
+        issues: [
+          { type: 'error', text: 'Поле сверху 25 мм вместо 20 мм по ГОСТ 7.32' },
+          { type: 'error', text: 'Шрифт Arial вместо Times New Roman' },
+          { type: 'error', text: 'Нумерация страниц отсутствует' },
+          { type: 'warning', text: 'Межстрочный интервал 1.15 вместо 1.5' },
+          { type: 'warning', text: 'Заголовки 2-го уровня не соответствуют стилю' },
+          { type: 'success', text: 'Оглавление сформировано корректно' },
+          { type: 'success', text: 'Абзацный отступ соответствует требованиям' },
+        ],
+      });
+      setChecking(false);
+    }, 2200);
+  };
+
+  const ScoreColor = (n) => n >= 80 ? '#10B981' : n >= 60 ? '#F59E0B' : '#EF4444';
+
+  return (
+    <section id="free-check" className="section" style={{ background: 'var(--bg-alt)' }}>
+      <div className="container">
+        {/* Header */}
+        <div style={{ maxWidth: '560px', marginBottom: '48px' }}>
+          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Бесплатно</div>
+          <h2 style={{ marginBottom: '12px' }}>Проверьте диплом прямо сейчас</h2>
+          <p style={{ fontSize: '1.0625rem' }}>
+            Загрузите файл — покажем все ошибки форматирования с объяснением.
+            Бесплатно и без регистрации.
+          </p>
+        </div>
+
+        <div className="check-grid">
+          {/* Left: upload */}
+          <div>
+            <div
+              className={`upload-zone${drag ? ' drag-over' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+              onDragLeave={() => setDrag(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDrag(false);
+                const f = e.dataTransfer.files[0];
+                if (f) setFileName(f.name);
+              }}
+            >
+              <div className="upload-icon-wrap">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '1.0625rem', marginBottom: '8px', color: 'var(--text)' }}>
+                Перетащите файл или нажмите
+              </h3>
+              <p style={{ fontSize: '13.5px', marginBottom: '20px' }}>DOCX или PDF, до 50 МБ</p>
+              <label style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                background: 'var(--color-gradient)',
+                color: 'white',
+                borderRadius: 'var(--r-md)',
+                fontWeight: '600',
+                fontSize: '14px',
+                cursor: 'pointer',
+              }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Выбрать файл
+                <input
+                  type="file"
+                  accept=".docx,.pdf"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) setFileName(f.name);
+                  }}
+                  disabled={checking}
+                />
+              </label>
+            </div>
+
+            {fileName && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                marginTop: '12px',
+                padding: '12px 16px',
+                background: 'rgba(16,185,129,0.07)',
+                border: '1px solid rgba(16,185,129,0.2)',
+                borderRadius: 'var(--r-md)',
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span style={{ fontSize: '13.5px', fontWeight: '600', color: 'var(--text)' }}>{fileName}</span>
+              </div>
+            )}
+
+            <button
+              onClick={handleCheck}
+              disabled={!fileName || checking}
+              className="btn btn-primary btn-full btn-lg"
+              style={{ marginTop: '16px' }}
+            >
+              {checking ? (
+                <>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 0.8s linear infinite' }}>
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                  </svg>
+                  Анализируем документ...
+                </>
+              ) : 'Проверить на соответствие ГОСТ'}
+            </button>
+
+            {/* Trust */}
+            <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
+              {['Бесплатно', 'Конфиденциально', 'Без регистрации'].map((t) => (
+                <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12.5px', color: 'var(--text-muted)' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  {t}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: results or placeholder */}
+          <div>
+            {!results && !checking && (
+              <div style={{
+                background: 'white',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--r-xl)',
+                padding: '32px',
+                textAlign: 'center',
+                minHeight: '300px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+              }}>
+                <div style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: 'var(--r-xl)',
+                  background: 'var(--color-primary-light)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--color-primary)',
+                }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                  </svg>
+                </div>
+                <h3 style={{ fontSize: '1.125rem', margin: 0 }}>Результаты проверки</h3>
+                <p style={{ fontSize: '14px', maxWidth: '240px' }}>
+                  Загрузите файл слева, и мы покажем все ошибки форматирования
+                </p>
+              </div>
+            )}
+
+            {checking && (
+              <div style={{
+                background: 'white',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--r-xl)',
+                padding: '32px',
+                textAlign: 'center',
+                minHeight: '300px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '16px',
+              }}>
+                <div style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  border: '4px solid var(--color-primary-light)',
+                  borderTop: '4px solid var(--color-primary)',
+                  animation: 'spin 0.8s linear infinite',
+                }} />
+                <h3 style={{ fontSize: '1.0625rem', margin: 0 }}>Анализируем документ</h3>
+                <p style={{ fontSize: '13.5px' }}>Проверяем соответствие ГОСТ 7.32-2017...</p>
+              </div>
+            )}
+
+            {results && (
+              <div style={{
+                background: 'white',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--r-xl)',
+                padding: '28px',
+                boxShadow: 'var(--shadow-md)',
+              }}>
+                {/* Score */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '20px',
+                  marginBottom: '24px',
+                  padding: '20px',
+                  background: 'var(--bg-alt)',
+                  borderRadius: 'var(--r-lg)',
+                }}>
+                  <div style={{
+                    width: '72px',
+                    height: '72px',
+                    borderRadius: '50%',
+                    border: `4px solid ${ScoreColor(results.score)}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <span style={{ fontSize: '1.25rem', fontWeight: '800', color: ScoreColor(results.score) }}>
+                      {results.score}%
+                    </span>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '12px', color: 'var(--text-faint)', margin: '0 0 4px' }}>Соответствие ГОСТ 7.32</p>
+                    <p style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text)', margin: 0 }}>
+                      {results.score >= 80 ? 'Хорошее' : results.score >= 60 ? 'Требует доработки' : 'Критические ошибки'}
+                    </p>
+                    <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                      {results.issues.filter(i => i.type === 'error').length} крит. ·{' '}
+                      {results.issues.filter(i => i.type === 'warning').length} предупреждений
+                    </p>
+                  </div>
+                </div>
+
+                {/* Issues */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+                  {results.issues.map((issue, i) => {
+                    const colors = { error: '#EF4444', warning: '#F59E0B', success: '#10B981' };
+                    const bgs = { error: 'rgba(239,68,68,0.05)', warning: 'rgba(245,158,11,0.05)', success: 'rgba(16,185,129,0.05)' };
+                    const labels = { error: '✕ Ошибка', warning: '⚠ Внимание', success: '✓ Хорошо' };
+                    return (
+                      <div key={i} style={{
+                        padding: '10px 14px',
+                        borderRadius: 'var(--r-md)',
+                        background: bgs[issue.type],
+                        borderLeft: `3px solid ${colors[issue.type]}`,
+                      }}>
+                        <span style={{ fontSize: '11px', fontWeight: '700', color: colors[issue.type], display: 'block', marginBottom: '2px' }}>
+                          {labels[issue.type]}
+                        </span>
+                        <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{issue.text}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Upsell */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)',
+                  border: '1px solid rgba(79,70,229,0.2)',
+                  borderRadius: 'var(--r-lg)',
+                  padding: '20px',
+                  textAlign: 'center',
+                }}>
+                  <p style={{ fontWeight: '700', fontSize: '15px', color: 'var(--text)', marginBottom: '6px' }}>
+                    Исправить всё автоматически?
+                  </p>
+                  <p style={{ fontSize: '13px', marginBottom: '14px' }}>
+                    Зарегистрируйтесь — и получите готовый документ за 30 секунд
+                  </p>
+                  <a href={routes.register} className="btn btn-primary btn-full">
+                    Исправить и скачать — 499 ₽
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </section>
+  );
+}
+
+// ============================================================
+//  WHY GOSTER
+// ============================================================
+
+function WhyGoster() {
+  return (
+    <section className="section" style={{ background: 'white' }}>
+      <div className="container">
+        <div style={{ maxWidth: '560px', marginBottom: '56px' }}>
+          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Преимущества</div>
+          <h2 style={{ marginBottom: '12px' }}>Почему выбирают GOSTER</h2>
+          <p style={{ fontSize: '1.0625rem' }}>
+            Не просто проверка — полноценное автоматическое форматирование по всем требованиям ГОСТ.
+          </p>
+        </div>
+
+        <div className="grid-3">
+          {FEATURES.map((f) => (
+            <div key={f.title} className="feature-card">
+              <div className="feature-icon">{f.icon}</div>
+              <h4 style={{ fontSize: '1.0625rem', marginBottom: '8px' }}>{f.title}</h4>
+              <p style={{ fontSize: '13.5px', lineHeight: '1.65' }}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -446,189 +857,211 @@ function Founders() {
   );
 }
 
-function StandardsList() {
-  return null;
-}
+// ============================================================
+//  TESTIMONIALS
+// ============================================================
 
 function Testimonials() {
   return (
-    <section className="section">
+    <section className="section" style={{ background: 'var(--bg-alt)' }}>
       <div className="container">
-        <h2 className="section-title">Отзывы пользователей</h2>
-        <div className="testimonials-grid">
-          {TESTIMONIALS.map((testimonial) => (
-            <div key={testimonial.id} className="testimonial" style={{ borderLeft: 'none' }}>
-              <div className="testimonial-header">
-                <div className="testimonial-avatar">
-                  {testimonial.author.charAt(0)}
-                </div>
-                <div className="testimonial-info">
-                  <h4>{testimonial.author}</h4>
-                  <p>{testimonial.institution}</p>
+        <div style={{ textAlign: 'center', maxWidth: '560px', margin: '0 auto 56px' }}>
+          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Отзывы</div>
+          <h2 style={{ marginBottom: '12px' }}>2 500+ студентов уже сдали</h2>
+          <p style={{ fontSize: '1.0625rem' }}>Что говорят те, кто уже воспользовался сервисом</p>
+        </div>
+
+        <div className="grid-3">
+          {TESTIMONIALS.map((t) => (
+            <div key={t.id} className="testimonial-card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="avatar">{t.author.charAt(0)}</div>
+                <div>
+                  <div style={{ fontWeight: '700', fontSize: '14.5px', color: 'var(--text)' }}>{t.author}</div>
+                  <div style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginTop: '2px' }}>{t.uni}</div>
                 </div>
               </div>
-              <p className="testimonial-text">"{testimonial.text}"</p>
-              <div className="testimonial-stars">
-                {'★'.repeat(testimonial.rating)}
-              </div>
+              <div className="stars">{'★'.repeat(t.rating)}</div>
+              <p style={{ fontSize: '14.5px', fontStyle: 'italic', lineHeight: '1.65', color: 'var(--gray-700)' }}>
+                "{t.text}"
+              </p>
             </div>
           ))}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+          <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '20px' }}>
+            Средняя оценка: <strong style={{ color: 'var(--text)' }}>4.9 / 5</strong> на основе 847 отзывов
+          </p>
+          <a href={routes.register} className="btn btn-primary btn-lg">
+            Попробовать бесплатно
+          </a>
         </div>
       </div>
     </section>
   );
 }
 
+// ============================================================
+//  PRICING
+// ============================================================
+
 function Pricing() {
-  const [showEnterprise, setShowEnterprise] = useState(false);
-  const [enterpriseData, setEnterpriseData] = useState({ company: '', phone: '' });
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ company: '', phone: '' });
+
+  const plans = [
+    {
+      name: 'Проверка',
+      price: 'Бесплатно',
+      period: 'навсегда',
+      desc: 'Проверьте форматирование и узнайте все ошибки без оплаты',
+      features: [
+        'Загрузка любого DOCX или PDF',
+        'Полный анализ по ГОСТ 7.32',
+        'Список всех ошибок с описанием',
+        'Рекомендации по исправлению',
+        'Без регистрации',
+      ],
+      cta: 'Проверить сейчас',
+      href: '#free-check',
+      featured: false,
+    },
+    {
+      name: 'Студент',
+      price: '499',
+      period: 'за документ',
+      desc: 'Автоматическое форматирование с гарантией сдачи с первого раза',
+      features: [
+        'Автоматическое форматирование',
+        'Готовый DOCX файл к сдаче',
+        'ГОСТ 7.32-2017 — 100%',
+        'Гарантия возврата токена',
+        'История в личном кабинете',
+        'Пакет 3 токена — 1 299 ₽ (−156 ₽)',
+        'Пакет 10 токенов — 3 999 ₽ (−990 ₽)',
+      ],
+      cta: 'Создать аккаунт',
+      href: routes.register,
+      featured: true,
+    },
+    {
+      name: 'Для вузов',
+      price: 'По запросу',
+      period: 'корпоративная лицензия',
+      desc: 'Единая система для всего потока студентов',
+      features: [
+        'Неограниченное количество документов',
+        'API интеграция в LMS',
+        'Командный доступ (до 50 пользователей)',
+        'Кастомные шаблоны под требования вуза',
+        'Поддержка 24/7',
+      ],
+      cta: 'Оставить заявку',
+      href: '#',
+      featured: false,
+      enterprise: true,
+    },
+  ];
 
   return (
-    <section id="pricing" className="section">
+    <section className="section" style={{ background: 'white' }}>
       <div className="container">
-        <h2 className="section-title">Простые и честные тарифы</h2>
-        <div className="price-grid-new">
-          {/* Free Plan */}
-          <div className="price-card-new">
-            <h3>Бесплатная проверка</h3>
-            <div className="price">0 ₽</div>
-            <div className="period">навсегда</div>
-            <p style={{ marginBottom: 'var(--spacing-lg)', fontSize: '14px' }}>Для знакомства с сервисом</p>
-            <ul className="price-features-new">
-              <li>Загрузка любого DOCX файла</li>
-              <li>Полная проверка по ГОСТ</li>
-              <li>Разбор всех ошибок</li>
-              <li>Рекомендации по исправлению</li>
-              <li>Без ограничений</li>
-            </ul>
-            <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => window.location.hash = routes.register}>
-              Попробовать
-            </button>
-          </div>
+        <div style={{ textAlign: 'center', maxWidth: '560px', margin: '0 auto 56px' }}>
+          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Тарифы</div>
+          <h2 style={{ marginBottom: '12px' }}>Простые, понятные цены</h2>
+          <p style={{ fontSize: '1.0625rem' }}>
+            Начните с бесплатной проверки. Платите только за форматирование.
+          </p>
+        </div>
 
-          {/* Student Plan */}
-          <div className="price-card-new" style={{ 
-            border: '3px solid var(--color-primary)',
-            boxShadow: '0 8px 32px rgba(10, 88, 202, 0.2)',
-            backgroundColor: 'rgba(10, 88, 202, 0.02)',
-            position: 'relative'
-          }}>
-            <div style={{
-              position: 'absolute',
-              top: '-12px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              background: 'var(--color-primary)',
-              color: 'white',
-              padding: '4px 12px',
-              borderRadius: '20px',
-              fontSize: '12px',
-              fontWeight: '600',
-            }}>
-              ⭐ ПОПУЛЯРНО
-            </div>
-            <h3 style={{ marginTop: 'var(--spacing-lg)' }}>Студентам</h3>
-            <div className="price" style={{ color: 'var(--color-primary)', fontSize: '36px', fontWeight: '700' }}>499 ₽</div>
-            <div className="period">за токен</div>
-            <p style={{ marginBottom: 'var(--spacing-lg)', fontSize: '13px', color: '#666' }}>Один токен = один полностью отформатированный файл</p>
-            
-            <ul className="price-features-new">
-              <li>Автоматическое форматирование</li>
-              <li>Готовый файл к сдаче</li>
-              <li>Все ГОСТ стандарты</li>
-              <li>История всех преобразований</li>
-              <li>Приоритетная поддержка</li>
-            </ul>
+        <div className="grid-3">
+          {plans.map((plan) => (
+            <div key={plan.name} className={`pricing-card${plan.featured ? ' featured' : ''}`}>
+              {plan.featured && (
+                <div className="pricing-badge">⭐ Популярный выбор</div>
+              )}
 
-            <div style={{ marginTop: 'var(--spacing-xl)', padding: 'var(--spacing-lg)', background: '#F0F7FF', borderRadius: '8px', border: '1px solid #D0E8FF' }}>
-              <p style={{ marginTop: 0, marginBottom: 'var(--spacing-md)', fontSize: '13px', fontWeight: '600', color: 'var(--color-primary)' }}>Выгодные пакеты с экономией:</p>
-              <div style={{ display: 'grid', gap: 'var(--spacing-sm)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px' }}>
-                  <span>3 токена</span>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: '600' }}>1 299 ₽</div>
-                    <div style={{ fontSize: '12px', color: '#22863A', fontWeight: '600' }}>Экономия 13.3% (-156 ₽)</div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px' }}>
-                  <span>10 токенов</span>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: '600' }}>3 999 ₽</div>
-                    <div style={{ fontSize: '12px', color: '#22863A', fontWeight: '600' }}>Экономия 19.9% (-990 ₽)</div>
-                  </div>
-                </div>
+              <div style={{ fontSize: '13.5px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                {plan.name}
               </div>
+
+              <div className={plan.price === 'Бесплатно' || plan.price === 'По запросу' ? 'pricing-price-free' : 'pricing-price'} style={{
+                fontSize: plan.price === 'Бесплатно' || plan.price === 'По запросу' ? '1.75rem' : '3rem',
+                fontWeight: '900',
+                letterSpacing: '-0.04em',
+                color: plan.featured ? 'var(--color-primary)' : 'var(--text)',
+                lineHeight: 1,
+                margin: '12px 0 4px',
+              }}>
+                {plan.price !== 'Бесплатно' && plan.price !== 'По запросу' && (
+                  <span style={{ fontSize: '1.25rem', verticalAlign: 'super', fontWeight: 700 }}>₽</span>
+                )}
+                {plan.price}
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>{plan.period}</div>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginBottom: '24px', minHeight: '42px' }}>
+                {plan.desc}
+              </p>
+
+              <div style={{ flex: 1, marginBottom: '24px' }}>
+                {plan.features.map((f, i) => (
+                  <div key={i} className="pricing-feat">
+                    <div className="pricing-check"><CheckCircle /></div>
+                    <span>{f}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                className={`btn btn-full btn-lg ${plan.featured ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => {
+                  if (plan.enterprise) {
+                    setShowModal(true);
+                  } else {
+                    window.location.hash = plan.href.replace('#', '') || '';
+                    if (plan.href === '#free-check') {
+                      document.getElementById('free-check')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }
+                }}
+              >
+                {plan.cta}
+              </button>
             </div>
-
-            <button className="btn btn-primary" style={{ width: '100%', marginTop: 'var(--spacing-lg)', background: 'var(--color-primary)' }} onClick={() => window.location.hash = routes.register}>
-              Создать аккаунт
-            </button>
-            <p style={{ fontSize: '12px', marginTop: 'var(--spacing-lg)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>В личном кабинете можно пополнить токены и получить отформатированный документ</p>
-          </div>
-
-          {/* Enterprise Plan */}
-          <div className="price-card-new">
-            <h3>Для компаний и вузов</h3>
-            <div className="price">По запросу</div>
-            <div className="period">индивидуальные условия</div>
-            <p style={{ marginBottom: 'var(--spacing-lg)', fontSize: '14px' }}>Специальные предложения и интеграции</p>
-            <ul className="price-features-new">
-              <li>Неограниченные преобразования</li>
-              <li>API интеграция</li>
-              <li>Техподдержка 24/7</li>
-              <li>Кастомные стандарты</li>
-              <li>Управление командой</li>
-            </ul>
-            <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => setShowEnterprise(true)}>
-              Связаться с нами
-            </button>
-          </div>
+          ))}
         </div>
       </div>
 
-      {showEnterprise && (
-        <div className="modal-overlay" onClick={() => setShowEnterprise(false)}>
-          <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0 }}>Свяжитесь с нами</h3>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)' }}>Расскажите о вашей компании и мы обсудим лучшие решения</p>
-            <div className="form-group">
-              <label className="form-label">Название компании</label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="ООО Компания"
-                value={enterpriseData.company}
-                onChange={(e) => setEnterpriseData({ ...enterpriseData, company: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Номер телефона</label>
-              <input
-                type="tel"
-                className="form-input"
-                placeholder="+7 (900) 123-45-67"
-                value={enterpriseData.phone}
-                onChange={(e) => setEnterpriseData({ ...enterpriseData, phone: e.target.value })}
-              />
-            </div>
-            <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)' }}>Наш менеджер свяжется с вами в течении 15 минут</p>
-            <div style={{ display: 'flex', gap: 'var(--spacing-lg)', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setShowEnterprise(false)}
-                className="btn btn-ghost"
-              >
-                Отмена
+      {/* Enterprise modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowModal(false)}
+              style={{ float: 'right', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '18px', padding: '0 0 8px 8px' }}
+            >
+              ✕
+            </button>
+            <h3 style={{ marginTop: 0, fontSize: '1.25rem', marginBottom: '6px' }}>Заявка для вузов и компаний</h3>
+            <p style={{ fontSize: '14px', marginBottom: '24px' }}>Расскажите о вашей организации — мы подберём условия</p>
+
+            <form onSubmit={(e) => { e.preventDefault(); alert(`Спасибо! Свяжемся в течение 2 часов. ${form.company}, ${form.phone}`); setShowModal(false); }}>
+              <div className="form-group">
+                <label className="form-label">Название организации</label>
+                <input type="text" className="form-input" placeholder="МГУ им. Ломоносова" required value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Телефон для связи</label>
+                <input type="tel" className="form-input" placeholder="+7 (900) 123-45-67" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              </div>
+              <button type="submit" className="btn btn-primary btn-full btn-lg">
+                Отправить заявку
               </button>
-              <button
-                onClick={() => {
-                  alert(`Спасибо! Компания: ${enterpriseData.company}, Телефон: ${enterpriseData.phone}`);
-                  setShowEnterprise(false);
-                }}
-                className="btn btn-primary"
-              >
-                Отправить
-              </button>
-            </div>
+            </form>
+            <p style={{ textAlign: 'center', fontSize: '12.5px', color: 'var(--text-faint)', marginTop: '12px' }}>
+              Обычно отвечаем в течение 2 часов
+            </p>
           </div>
         </div>
       )}
@@ -636,281 +1069,461 @@ function Pricing() {
   );
 }
 
+// ============================================================
+//  FAQ
+// ============================================================
+
 function FAQ() {
-  const [openId, setOpenId] = useState(null);
+  const [openIdx, setOpenIdx] = useState(0);
 
   return (
-    <section id="faq" className="section" style={{ backgroundColor: 'var(--color-light)' }}>
+    <section className="section" style={{ background: 'var(--bg-alt)' }}>
       <div className="container">
-        <h2 className="section-title">Часто задаваемые вопросы</h2>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          {FAQ_ITEMS.map((item) => (
-            <div key={item.id} className="faq-item" style={{ marginBottom: 'var(--spacing-lg)' }}>
-              <button
-                className={`faq-question ${openId === item.id ? 'open' : ''}`}
-                onClick={() => setOpenId(openId === item.id ? null : item.id)}
-                style={{
-                  width: '100%',
-                  padding: 'var(--spacing-lg) var(--spacing-xl)',
-                  background: 'white',
-                  border: '1px solid #E0E0E0',
-                  borderRadius: 'var(--size-border-radius-medium)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  color: 'var(--color-text)',
-                  transition: 'all 0.3s ease',
-                  boxShadow: openId === item.id ? '0 4px 12px rgba(10,88,202,0.15)' : 'none',
-                }}
-              >
-                <span>{item.question}</span>
-                <span className="faq-icon" style={{ transform: openId === item.id ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>▼</span>
-              </button>
-              {openId === item.id && (
-                <div className="faq-answer" style={{
-                  padding: 'var(--spacing-lg) var(--spacing-xl)',
-                  background: 'white',
-                  borderRadius: 'var(--size-border-radius-medium)',
-                  marginTop: '4px',
-                  borderTop: '3px solid var(--color-primary)',
-                  animation: 'slideDown 0.3s ease',
-                }}>
-                  <p style={{ margin: 0, color: '#6C757D', lineHeight: '1.6' }}>{item.answer}</p>
+        <div style={{ textAlign: 'center', maxWidth: '520px', margin: '0 auto 56px' }}>
+          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>FAQ</div>
+          <h2>Часто задаваемые вопросы</h2>
+        </div>
+
+        <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {FAQ_ITEMS.map((item, idx) => (
+            <div key={idx} className={`faq-item${openIdx === idx ? ' open' : ''}`}>
+              <button className="faq-btn" onClick={() => setOpenIdx(openIdx === idx ? -1 : idx)}>
+                <span>{item.q}</span>
+                <div className="faq-chevron">
+                  <ChevronDown />
                 </div>
+              </button>
+              {openIdx === idx && (
+                <div className="faq-answer">{item.a}</div>
               )}
             </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
 
-function CTA() {
-  return (
-    <section className="section">
-      <div className="container">
-        <div style={{ textAlign: 'center', padding: 'var(--spacing-3xl)', background: 'var(--color-light)', borderRadius: 'var(--size-border-radius-large)' }}>
-          <h2>Готовы сэкономить время?</h2>
-          <p style={{ marginBottom: 'var(--spacing-2xl)' }}>Бесплатная проверка файла — мы покажем какие ошибки у вас есть и где их найти</p>
-          <div style={{ display: 'flex', gap: 'var(--spacing-lg)', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href={routes.register} className="btn btn-primary btn-large">Создать аккаунт</a>
-            <a href={routes.login} className="btn btn-secondary btn-large">Войти</a>
-          </div>
-          <p style={{ marginTop: 'var(--spacing-lg)', fontSize: '14px', color: 'var(--color-text-secondary)' }}>
-            💳 Безопасное пополнение • 🔒 Конфиденциальность документов
+        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+          <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+            Не нашли ответа?
           </p>
+          <a href="mailto:support@goster.io" className="btn btn-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            Написать в поддержку
+          </a>
         </div>
       </div>
     </section>
   );
 }
 
+// ============================================================
+//  FINAL CTA
+// ============================================================
 
+function FinalCTA() {
+  return (
+    <section className="cta-section">
+      <div className="hero-orb-1" style={{ opacity: 0.7 }} />
+      <div className="hero-orb-2" style={{ opacity: 0.5 }} />
+
+      <div className="container" style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+        <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+          <div className="badge badge-dark" style={{ marginBottom: '24px' }}>
+            <div className="hero-dot" />
+            Начните прямо сейчас
+          </div>
+
+          <h2 style={{ color: 'white', fontSize: 'clamp(1.75rem, 4vw, 3rem)', marginBottom: '16px' }}>
+            Отформатируйте диплом{' '}
+            <span className="text-gradient-hero">за 30 секунд</span>
+          </h2>
+
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.0625rem', marginBottom: '40px', maxWidth: '480px', margin: '0 auto 40px' }}>
+            Начните с бесплатной проверки. Без карты, без обязательств.
+            Более 2 500 студентов уже сдали диплом с первого раза.
+          </p>
+
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href={routes.register} className="btn btn-white btn-xl">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <line x1="19" y1="8" x2="19" y2="14"/>
+                <line x1="22" y1="11" x2="16" y2="11"/>
+              </svg>
+              Создать аккаунт бесплатно
+            </a>
+            <a href="#free-check" className="btn btn-glass btn-xl">
+              Проверить диплом
+            </a>
+          </div>
+
+          <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', marginTop: '32px', flexWrap: 'wrap' }}>
+            {['Бесплатная проверка', 'Гарантия ГОСТ 7.32', 'Конфиденциальность'].map((t) => (
+              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {t}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============================================================
+//  FOOTER
+// ============================================================
+
+function Footer() {
+  const cols = [
+    {
+      title: 'Сервис',
+      links: [
+        { label: 'Для студентов', href: routes.students },
+        { label: 'Для вузов', href: routes.universities },
+        { label: 'Для компаний', href: routes.business },
+        { label: 'Тарифы', href: '#' },
+      ],
+    },
+    {
+      title: 'Форматирование',
+      links: [
+        { label: 'ГОСТ 7.32-2017', href: '#' },
+        { label: 'Бесплатная проверка', href: '#free-check' },
+        { label: 'FAQ', href: '#' },
+      ],
+    },
+    {
+      title: 'Аккаунт',
+      links: [
+        { label: 'Войти', href: routes.login },
+        { label: 'Регистрация', href: routes.register },
+        { label: 'Личный кабинет', href: routes.cabinet },
+      ],
+    },
+  ];
+
+  return (
+    <footer className="footer">
+      <div className="container">
+        <div className="footer-grid">
+          {/* Brand */}
+          <div>
+            <div className="footer-logo">GOSTER</div>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: '1.65', marginTop: '8px', maxWidth: '260px' }}>
+              Автоматическое форматирование дипломных работ по ГОСТ 7.32-2017. Создано студентами для студентов.
+            </p>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
+              {['ВКР', 'ГОСТ 7.32', 'Диплом'].map((tag) => (
+                <span key={tag} style={{
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  color: 'rgba(255,255,255,0.4)',
+                  background: 'rgba(255,255,255,0.06)',
+                  padding: '4px 10px',
+                  borderRadius: 'var(--r-full)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Links */}
+          {cols.map((col) => (
+            <div key={col.title}>
+              <div style={{ fontSize: '11.5px', fontWeight: '700', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                {col.title}
+              </div>
+              {col.links.map((l) => (
+                <a key={l.label} href={l.href} className="footer-link">{l.label}</a>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', margin: 0 }}>
+            © 2026 GOSTER.io — Все права защищены
+          </p>
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <a href="#" className="footer-link" style={{ fontSize: '13px' }}>Конфиденциальность</a>
+            <a href="#" className="footer-link" style={{ fontSize: '13px' }}>Условия использования</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ============================================================
+//  CABINET
+// ============================================================
 
 function Cabinet() {
   const [tab, setTab] = useState('dashboard');
-  const [theme, setTheme] = useState('light');
-  const [documents, setDocuments] = useState([
-    { id: 1, name: 'vkr_ivanov_v1.docx', status: 'ready', date: '30.03.2026' },
-    { id: 2, name: 'diplom_petrov.docx', status: 'ready', date: '29.03.2026' },
-  ]);
-  const [history, setHistory] = useState(initialHistory);
-  const [selectedGost, setSelectedGost] = useState('gost-7.32');
-  const [selectedFileName, setSelectedFileName] = useState('');
+  const [documents, setDocuments] = useState(initialDocs);
+  const [fileName, setFileName] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [stepIndex, setStepIndex] = useState(-1);
-  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [stepIdx, setStepIdx] = useState(-1);
+  const [showLogout, setShowLogout] = useState(false);
+  const [drag, setDrag] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
 
-  const canSubmit = selectedFileName && selectedGost && !processing;
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+  const canSubmit = fileName && !processing;
 
   useEffect(() => {
     if (!processing) return;
-    if (stepIndex >= pipelineSteps.length - 1) {
-      const timer = setTimeout(() => {
+    if (stepIdx >= pipelineSteps.length - 1) {
+      const t = setTimeout(() => {
         const now = new Date();
-        const dt = now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-        const base = selectedFileName.replace(/\.(docx|pdf)$/i, '') || 'document';
-        const ext = selectedFileName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'docx';
-        setDocuments((prev) => [
-          {
-            id: Date.now(),
-            name: selectedFileName,
-            status: 'ready',
-            date: dt,
-          },
-          ...prev,
-        ]);
+        const dt = `${now.toLocaleDateString('ru-RU')} ${now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+        setDocuments((prev) => [{ id: Date.now(), name: fileName, status: 'ready', date: dt }, ...prev]);
         setProcessing(false);
-        setStepIndex(-1);
+        setStepIdx(-1);
+        setFileName('');
+        setSuccessMsg('Документ отформатирован и сохранён!');
         setTab('documents');
+        setTimeout(() => setSuccessMsg(''), 4000);
       }, 700);
-      return () => clearTimeout(timer);
+      return () => clearTimeout(t);
     }
-
-    const timer = setTimeout(() => setStepIndex((s) => s + 1), 900);
-    return () => clearTimeout(timer);
-  }, [processing, stepIndex, selectedFileName]);
-
-  const submit = (e) => {
-    e.preventDefault();
-    setProcessing(true);
-    setStepIndex(0);
-  };
+    const t = setTimeout(() => setStepIdx((s) => s + 1), 850);
+    return () => clearTimeout(t);
+  }, [processing, stepIdx, fileName]);
 
   const progress = useMemo(() => {
-    if (!processing || stepIndex < 0) return 0;
-    return Math.round(((stepIndex + 1) / pipelineSteps.length) * 100);
-  }, [processing, stepIndex]);
+    if (!processing || stepIdx < 0) return 0;
+    return Math.round(((stepIdx + 1) / pipelineSteps.length) * 100);
+  }, [processing, stepIdx]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setProcessing(true);
+    setStepIdx(0);
+  };
 
   const handleLogout = () => {
-    console.log('🔓 Выход из аккаунта...');
     localStorage.removeItem('token');
-    console.log('✅ Токен удалён из localStorage');
     window.location.hash = '#/';
   };
 
+  const navItems = [
+    { id: 'dashboard', label: 'Дашборд', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
+    { id: 'upload', label: 'Загрузить файл', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> },
+    { id: 'documents', label: 'Мои документы', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg> },
+    { id: 'settings', label: 'Настройки', icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> },
+  ];
+
+  const MobileTabBar = () => (
+    <div className="cab-mobile-nav">
+      {navItems.map((item) => (
+        <button
+          key={item.id}
+          className={`cab-mob-btn${tab === item.id ? ' active' : ''}`}
+          onClick={() => setTab(item.id)}
+        >
+          {item.icon}
+          <span>{item.id === 'upload' ? 'Загрузить' : item.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="sidebar-layout">
+      {/* Sidebar */}
       <aside className="sidebar">
-        <h3 style={{ color: 'white', marginBottom: 'var(--spacing-xl)' }}>GOSTER</h3>
-        <ul className="sidebar-menu">
-          <li>
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setTab('dashboard'); }}
-              className={tab === 'dashboard' ? 'active' : ''}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-              </svg>
-              Дашборд
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setTab('upload'); }}
-              className={tab === 'upload' ? 'active' : ''}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
-              Загрузить
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setTab('documents'); }}
-              className={tab === 'documents' ? 'active' : ''}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/>
-              </svg>
-              Мои документы
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setTab('subscription'); }}
-              className={tab === 'subscription' ? 'active' : ''}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="1"/><path d="M12 1v6m0 6v6"/><path d="M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6"/><path d="M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/>
-              </svg>
-              Подписка
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); setTab('settings'); }}
-              className={tab === 'settings' ? 'active' : ''}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/>
-              </svg>
-              Настройки
-            </a>
-          </li>
-          <li style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: 'var(--spacing-lg)', marginTop: 'var(--spacing-lg)' }}>
-            <div style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: '8px', padding: 'var(--spacing-lg)', marginBottom: 'var(--spacing-lg)', cursor: 'pointer', transition: 'background 0.3s ease' }}>
-              <p style={{ margin: '0 0 var(--spacing-lg) 0', fontSize: '14px', fontWeight: '600', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Токены</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: 'white' }}>1000</span>
-              </p>
-              <button className="btn btn-primary" style={{ width: '100%', fontSize: '14px' }}>Пополнить</button>
-            </div>
-          </li>
-          <li className="sidebar-footer">
-            <div className="theme-toggle">
-              <button
-                onClick={() => setTheme('light')}
-                className={`theme-btn ${theme === 'light' ? 'active' : ''}`}
-                title="Светлая тема"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                </svg>
-              </button>
-              <button
-                onClick={() => setTheme('dark')}
-                className={`theme-btn ${theme === 'dark' ? 'active' : ''}`}
-                title="Тёмная тема"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                </svg>
-              </button>
-            </div>
+        <a href={routes.home} className="sidebar-logo">GOSTER</a>
+
+        <div className="sidebar-section">Навигация</div>
+        <nav className="sidebar-nav">
+          {navItems.map((item) => (
             <button
-              onClick={() => setShowLogoutDialog(true)}
-              className="sidebar-btn logout"
+              key={item.id}
+              className={`sidebar-btn${tab === item.id ? ' active' : ''}`}
+              onClick={() => setTab(item.id)}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-              </svg>
-              Выйти
+              {item.icon}
+              {item.label}
             </button>
-          </li>
-        </ul>
+          ))}
+        </nav>
+
+        {/* Token box */}
+        <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
+          <div className="sidebar-token">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <span style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Форматирование</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '14px' }}>
+
+              <span style={{ fontSize: '18px', color: 'rgba(255,255,255,1)', fontWeight: '500' }}>100 токенов</span>
+            </div>
+            <button style={{
+              width: '100%',
+              padding: '8px',
+              background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+              color: 'white',
+              border: 'none',
+              borderRadius: 'var(--r-md)',
+              fontWeight: '700',
+              fontSize: '13px',
+              cursor: 'pointer',
+              fontFamily: 'var(--font)',
+            }}>
+              + Купить токены
+            </button>
+          </div>
+
+          <div className="sidebar-sep" />
+
+          {/* User info */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', marginBottom: '4px' }}>
+            <div style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: '700',
+              fontSize: '14px',
+              flexShrink: 0,
+            }}>И</div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: 'rgba(255,255,255,0.8)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Иван Иванов</div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>Студент</div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowLogout(true)}
+            className="sidebar-btn"
+            style={{ color: 'rgba(255,100,100,0.7)' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Выйти из аккаунта
+          </button>
+        </div>
       </aside>
 
-      <main className="main-content">
+      {/* Main Content */}
+      <main className="cabinet-main">
+        {/* Success notification */}
+        {successMsg && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '14px 20px',
+            background: 'rgba(16,185,129,0.1)',
+            border: '1px solid rgba(16,185,129,0.25)',
+            borderRadius: 'var(--r-lg)',
+            marginBottom: '24px',
+            animation: 'slideDown 0.3s ease',
+            color: 'var(--color-success)',
+            fontWeight: '600',
+            fontSize: '14px',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            {successMsg}
+          </div>
+        )}
+
+        {/* ─── DASHBOARD ─── */}
         {tab === 'dashboard' && (
           <div>
-            <h2 style={{ marginTop: 0, paddingTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-2xl)' }}>Добро пожаловать!</h2>
-            
-            <div className="quick-stats">
-              <div className="stat-card">
-                <h3>{documents.length}</h3>
-                <p>Документов обработано</p>
+            <div className="cabinet-header">
+              <h2>Добро пожаловать!</h2>
+              <p>Ваш личный кабинет для форматирования документов по ГОСТ</p>
+            </div>
+
+            {/* Stats */}
+            <div className="stat-card-grid">
+              <div className="stat-card" style={{ borderLeft: '3px solid var(--color-primary)' }}>
+                <div className="stat-card-num" style={{ color: 'var(--color-primary)' }}>{documents.length}</div>
+                <div className="stat-card-label">Документов обработано</div>
               </div>
-              <div className="stat-card">
-                <h3>1</h3>
-                <p>Осталось бесплатных</p>
+              <div className="stat-card" style={{ borderLeft: '3px solid var(--color-success)' }}>
+              <span style={{ fontSize: '2.25rem', fontWeight: '900', lineHeight: 1, color: '#A5B4FC', letterSpacing: '-0.04em' }}>∞</span>
+                <div className="stat-card-label">Бесплатных проверок</div>
               </div>
-              <div className="stat-card">
-                <h3>Бесплатно</h3>
-                <p>Текущий тариф</p>
+              <div className="stat-card" style={{ borderLeft: '3px solid var(--color-warning)' }}>
+                <div className="stat-card-num" style={{ color: 'var(--color-warning)', fontSize: '1.25rem' }}>Бесплатный</div>
+                <div className="stat-card-label">Текущий тариф</div>
               </div>
             </div>
 
-            <div className="card">
-              <h2 style={{ marginTop: 0 }}>Последние документы</h2>
-              <table className="table">
+            {/* Quick actions */}
+            <div className="quick-actions-grid">
+              <button
+                onClick={() => setTab('upload')}
+                style={{
+                  background: 'var(--color-gradient)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 'var(--r-xl)',
+                  padding: '24px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontFamily: 'var(--font)',
+                  transition: 'all var(--t)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-primary)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                <div style={{ fontSize: '28px', marginBottom: '8px' }}>📄</div>
+                <div style={{ fontWeight: '700', fontSize: '15px', marginBottom: '4px' }}>Отформатировать диплом</div>
+                <div style={{ fontSize: '12.5px', opacity: 0.8 }}>Загрузите DOCX — получите по ГОСТ за 30 сек</div>
+              </button>
+              <button
+                onClick={() => setTab('documents')}
+                style={{
+                  background: 'white',
+                  color: 'var(--text)',
+                  border: '1.5px solid var(--border)',
+                  borderRadius: 'var(--r-xl)',
+                  padding: '24px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontFamily: 'var(--font)',
+                  transition: 'all var(--t)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(79,70,229,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none'; }}
+              >
+                <div style={{ fontSize: '28px', marginBottom: '8px' }}>📁</div>
+                <div style={{ fontWeight: '700', fontSize: '15px', marginBottom: '4px' }}>Мои документы</div>
+                <div style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>Скачать готовые файлы</div>
+              </button>
+            </div>
+
+            {/* Recent docs */}
+            <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 'var(--r-xl)', overflow: 'hidden' }}>
+              <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ fontSize: '1rem', margin: 0 }}>Последние документы</h3>
+                <button onClick={() => setTab('documents')} className="btn btn-ghost btn-sm">Все документы</button>
+              </div>
+              <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Файл</th>
+                    <th>Документ</th>
                     <th>Статус</th>
                     <th>Дата</th>
                     <th>Действия</th>
@@ -919,11 +1532,23 @@ function Cabinet() {
                 <tbody>
                   {documents.slice(0, 3).map((doc) => (
                     <tr key={doc.id}>
-                      <td>📄 {doc.name}</td>
-                      <td><span className="badge badge-success">Готов</span></td>
-                      <td>{doc.date}</td>
                       <td>
-                        <button className="btn btn-small btn-ghost">Скачать</button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div style={{ width: '32px', height: '32px', borderRadius: 'var(--r-md)', background: 'var(--color-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', flexShrink: 0 }}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                              <polyline points="13 2 13 9 20 9"/>
+                            </svg>
+                          </div>
+                          <span style={{ fontWeight: '500', fontSize: '13.5px' }}>{doc.name}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="badge badge-success">✓ Готов</span>
+                      </td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{doc.date}</td>
+                      <td>
+                        <button className="btn btn-primary btn-sm">Скачать</button>
                       </td>
                     </tr>
                   ))}
@@ -933,163 +1558,232 @@ function Cabinet() {
           </div>
         )}
 
+        {/* ─── UPLOAD ─── */}
         {tab === 'upload' && (
           <div>
-            <h2 style={{ marginTop: 0, paddingTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-2xl)' }}>Загрузить файл</h2>
-            <div className="card">
-              <form style={{ display: 'grid', gap: 'var(--spacing-lg)' }} onSubmit={submit}>
-                <div className="upload-zone">
-                  <div className="upload-icon">☁️</div>
-                  <h3>Перетащите файл или нажмите для выбора</h3>
-                  <p>DOCX формат</p>
-                  <input
-                    type="file"
-                    accept=".docx,.pdf"
-                    onChange={(e) => setSelectedFileName(e.target.files?.[0]?.name || '')}
-                    disabled={processing}
-                    style={{ marginTop: 'var(--spacing-lg)' }}
-                  />
-                </div>
+            <div className="cabinet-header">
+              <h2>Форматировать документ</h2>
+              <p>Загрузите DOCX файл — получите готовый документ по ГОСТ 7.32-2017</p>
+            </div>
 
-                <div className="form-group">
-                  <label className="form-label">Стандарт</label>
-                  <input 
-                    type="text"
-                    className="form-input"
-                    value="ГОСТ 7.32-2017"
-                    disabled
-                    style={{ backgroundColor: 'var(--color-bg-secondary)', cursor: 'not-allowed' }}
-                  />
-                </div>
+            <div className="upload-col-grid">
+              <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 'var(--r-xl)', padding: '28px' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '20px' }}>Выберите файл</h3>
 
-                <button 
-                  type="submit"
-                  className="btn btn-primary btn-large"
-                  disabled={!canSubmit}
-                >
-                  Начать форматирование
-                </button>
-              </form>
-
-              {processing && (
-                <div className="pipeline" style={{ marginTop: 'var(--spacing-2xl)' }}>
-                  <div className="progress-track">
-                    <div className="progress-bar" style={{ width: `${progress}%` }} />
+                <form onSubmit={handleSubmit}>
+                  <div
+                    className={`upload-drop${drag ? ' drag-over' : ''}`}
+                    onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+                    onDragLeave={() => setDrag(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDrag(false);
+                      const f = e.dataTransfer.files[0];
+                      if (f) setFileName(f.name);
+                    }}
+                  >
+                    <div style={{ width: '60px', height: '60px', borderRadius: 'var(--r-xl)', background: 'var(--color-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', margin: '0 auto 14px' }}>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                    </div>
+                    <h4 style={{ marginBottom: '6px', fontSize: '14.5px' }}>Перетащите файл сюда</h4>
+                    <p style={{ fontSize: '13px', marginBottom: '16px' }}>DOCX или PDF, до 50 МБ</p>
+                    <label className="btn btn-outline btn-sm" style={{ cursor: 'pointer' }}>
+                      Выбрать файл
+                      <input type="file" accept=".docx,.pdf" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files?.[0]; if (f) setFileName(f.name); }} disabled={processing} />
+                    </label>
                   </div>
-                  <p className="progress-text">{progress}%</p>
-                  <ul>
-                    {pipelineSteps.map((step, idx) => {
-                      const state = idx < stepIndex ? 'done' : idx === stepIndex ? 'active' : 'todo';
-                      return (
-                        <li key={step} className={`stage ${state}`}>
-                          <span>{state === 'done' ? '✓' : state === 'active' ? '⏳' : '•'}</span>
+
+                  {fileName && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '12px 0', padding: '12px 14px', background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 'var(--r-md)' }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)' }}>{fileName}</span>
+                      <button type="button" onClick={() => setFileName('')} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-faint)', fontSize: '16px' }}>×</button>
+                    </div>
+                  )}
+
+                  <div style={{ marginTop: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text)', marginBottom: '6px' }}>Стандарт</label>
+                    <input type="text" value="ГОСТ 7.32-2017" disabled className="form-input" />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={!canSubmit}
+                    className="btn btn-primary btn-full btn-lg"
+                    style={{ marginTop: '16px' }}
+                  >
+                    {processing ? (
+                      <>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 0.8s linear infinite' }}>
+                          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                        </svg>
+                        Форматируем...
+                      </>
+                    ) : 'Начать форматирование'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Pipeline */}
+              <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 'var(--r-xl)', padding: '28px' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '20px' }}>
+                  {processing ? 'Обрабатываем документ...' : 'Что происходит внутри'}
+                </h3>
+
+                {processing && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '13px', fontWeight: '600' }}>
+                      <span style={{ color: 'var(--text-muted)' }}>Прогресс</span>
+                      <span style={{ color: 'var(--color-primary)' }}>{progress}%</span>
+                    </div>
+                    <div className="progress-track">
+                      <div className="progress-fill" style={{ width: `${progress}%` }} />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  {pipelineSteps.map((step, idx) => {
+                    const state = !processing ? 'todo' : idx < stepIdx ? 'done' : idx === stepIdx ? 'active' : 'todo';
+                    return (
+                      <div key={step} className="pipeline-step">
+                        <div className={`pipeline-dot ${state}`}>
+                          {state === 'done' ? '✓' : state === 'active' ? '●' : String(idx + 1)}
+                        </div>
+                        <span style={{
+                          fontSize: '13.5px',
+                          color: state === 'done' ? 'var(--color-success)' : state === 'active' ? 'var(--color-primary)' : 'var(--text-muted)',
+                          fontWeight: state === 'active' ? '600' : '400',
+                        }}>
                           {step}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
+
+                {!processing && (
+                  <div style={{ marginTop: '20px', padding: '14px', background: 'var(--color-primary-light)', borderRadius: 'var(--r-md)', fontSize: '13px', color: 'var(--color-primary)' }}>
+                    <strong>1 токен = 1 документ.</strong> Загрузите файл и нажмите «Начать форматирование».
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── DOCUMENTS ─── */}
+        {tab === 'documents' && (
+          <div>
+            <div className="cabinet-header">
+              <h2>Мои документы</h2>
+              <p>Все отформатированные файлы доступны для скачивания</p>
+            </div>
+
+            <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 'var(--r-xl)', overflow: 'hidden' }}>
+              {documents.length === 0 ? (
+                <div style={{ padding: '64px 32px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
+                  <h3 style={{ fontSize: '1.0625rem', marginBottom: '8px' }}>Нет документов</h3>
+                  <p style={{ fontSize: '14px', marginBottom: '20px' }}>Загрузите первый файл для форматирования</p>
+                  <button onClick={() => setTab('upload')} className="btn btn-primary">
+                    Загрузить файл
+                  </button>
+                </div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Документ</th>
+                      <th>Статус</th>
+                      <th>Дата</th>
+                      <th>Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {documents.map((doc) => (
+                      <tr key={doc.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '34px', height: '34px', borderRadius: 'var(--r-md)', background: 'var(--color-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', flexShrink: 0 }}>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                                <polyline points="13 2 13 9 20 9"/>
+                              </svg>
+                            </div>
+                            <span style={{ fontWeight: '500', fontSize: '13.5px' }}>{doc.name}</span>
+                          </div>
+                        </td>
+                        <td><span className="badge badge-success">✓ Готов</span></td>
+                        <td style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{doc.date}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button className="btn btn-primary btn-sm">
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                              </svg>
+                              Скачать
+                            </button>
+                            <button
+                              className="btn btn-ghost btn-sm"
+                              onClick={() => setDocuments((prev) => prev.filter((d) => d.id !== doc.id))}
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               )}
             </div>
           </div>
         )}
 
-        {tab === 'documents' && (
-          <div>
-            <h2 style={{ marginTop: 0, paddingTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-2xl)' }}>Мои документы</h2>
-            <div className="card">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Файл</th>
-                    <th>Статус</th>
-                    <th>Дата</th>
-                    <th>Действия</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {documents.map((doc) => (
-                    <tr key={doc.id}>
-                      <td>📄 {doc.name}</td>
-                      <td><span className="badge badge-success">Готов</span></td>
-                      <td>{doc.date}</td>
-                      <td>
-                        <button className="btn btn-small btn-primary">Скачать</button>
-                        <button className="btn btn-small btn-ghost">Удалить</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {tab === 'subscription' && (
-          <div>
-            <h2 style={{ marginTop: 0, paddingTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-2xl)' }}>Подписка и тариф</h2>
-            
-            <div className="pricing-section">
-              {PRICING_PLANS.map((plan) => (
-                <div key={plan.id} className={`price-card-detail ${plan.highlighted ? 'featured' : ''}`}>
-                  <div className="plan-header">
-                    <h3 style={{ margin: 0 }}>{plan.name}</h3>
-                    {plan.highlighted && <span className="badge badge-primary">Популярно</span>}
-                  </div>
-                  
-                  <div className="plan-price">
-                    <div className="price">{plan.price}</div>
-                    <div className="period">{plan.period}</div>
-                  </div>
-                  
-                  <ul className="plan-features">
-                    {plan.features && plan.features.map((feature, idx) => (
-                      <li key={idx}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                          <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <button className="btn btn-primary" style={{ width: '100%', marginTop: 'var(--spacing-lg)' }}>
-                    {plan.id === 'free' ? 'Текущий план' : 'Выбрать'}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
+        {/* ─── SETTINGS ─── */}
         {tab === 'settings' && (
           <div>
-            <h2 style={{ marginTop: 0, paddingTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-2xl)' }}>Настройки</h2>
-            
-            <div style={{ display: 'grid', gap: '24px' }}>
-              <div className="card">
-                <h3 style={{ marginTop: 0, fontSize: '16px', marginBottom: 'var(--spacing-xl)' }}>Профиль</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-lg)', marginBottom: 'var(--spacing-xl)' }}>
+            <div className="cabinet-header">
+              <h2>Настройки</h2>
+              <p>Управление профилем и безопасностью</p>
+            </div>
+
+            <div style={{ display: 'grid', gap: '20px', maxWidth: '640px' }}>
+              {/* Profile */}
+              <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 'var(--r-xl)', padding: '28px' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '20px' }}>Профиль</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'var(--color-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '800', fontSize: '22px', flexShrink: 0 }}>И</div>
+                  <div>
+                    <div style={{ fontWeight: '700', fontSize: '15px' }}>Иван Иванов</div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Студент · Бесплатный тариф</div>
+                  </div>
+                </div>
+                <div className="settings-fields">
                   <div className="form-group">
                     <label className="form-label">Имя</label>
                     <input type="text" className="form-input" defaultValue="Иван Иванов" />
                   </div>
-                  <div className="form-group" style={{ position: 'relative' }}>
+                  <div className="form-group">
                     <label className="form-label">Email</label>
-                    <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
-                      <input type="email" className="form-input" defaultValue="ivan@mail.ru" style={{ flex: 1 }} />
-                      <button className="btn btn-ghost" style={{ padding: 'var(--spacing-md) var(--spacing-lg)' }} title="Изменить">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                      </button>
-                    </div>
+                    <input type="email" className="form-input" defaultValue="ivan@mail.ru" />
                   </div>
                 </div>
+                <button className="btn btn-primary">Сохранить изменения</button>
               </div>
-              
-              <div className="card">
-                <h3 style={{ marginTop: 0, fontSize: '16px', marginBottom: 'var(--spacing-xl)' }}>Безопасность</h3>
+
+              {/* Security */}
+              <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 'var(--r-xl)', padding: '28px' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '20px' }}>Безопасность</h3>
                 <div className="form-group">
                   <label className="form-label">Текущий пароль</label>
                   <input type="password" className="form-input" placeholder="••••••••" />
@@ -1099,42 +1793,824 @@ function Cabinet() {
                   <input type="password" className="form-input" placeholder="••••••••" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Подтверждение пароля</label>
+                  <label className="form-label">Подтвердите пароль</label>
                   <input type="password" className="form-input" placeholder="••••••••" />
                 </div>
-                <button type="submit" className="btn btn-primary">Сохранить изменения</button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button className="btn btn-primary">Обновить пароль</button>
+                  <button className="btn btn-ghost">Отмена</button>
+                </div>
+              </div>
+
+              {/* Danger zone */}
+              <div style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 'var(--r-xl)', padding: '24px' }}>
+                <h3 style={{ fontSize: '1rem', color: 'var(--color-error)', marginBottom: '8px' }}>Опасная зона</h3>
+                <p style={{ fontSize: '13.5px', marginBottom: '16px' }}>Удаление аккаунта необратимо. Все документы будут удалены.</p>
+                <button className="btn btn-danger btn-sm">Удалить аккаунт</button>
               </div>
             </div>
           </div>
         )}
       </main>
 
-      {showLogoutDialog && (
-        <div className="modal-overlay" onClick={() => setShowLogoutDialog(false)}>
-          <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0 }}>Вы уверены?</h3>
-            <p style={{ marginBottom: 'var(--spacing-2xl)', color: 'var(--color-text-secondary)' }}>Вы действительно хотите выйти из аккаунта?</p>
-            <div style={{ display: 'flex', gap: 'var(--spacing-lg)', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setShowLogoutDialog(false)}
-                className="btn btn-ghost"
-              >
-                Отмена
-              </button>
-              <button
-                onClick={handleLogout}
-                className="btn btn-primary"
-                style={{ background: '#DC2626' }}
-              >
-                Выйти
-              </button>
+      {/* Mobile nav */}
+      <MobileTabBar />
+
+      {/* Logout modal */}
+      {showLogout && (
+        <div className="modal-overlay" onClick={() => setShowLogout(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div style={{ width: '52px', height: '52px', borderRadius: 'var(--r-lg)', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px', color: 'var(--color-error)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </div>
+            <h3 style={{ fontSize: '1.1875rem', marginBottom: '6px', marginTop: 0 }}>Выйти из аккаунта?</h3>
+            <p style={{ fontSize: '14px', marginBottom: '28px' }}>Вы будете перенаправлены на главную страницу</p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button className="btn btn-ghost btn-full" onClick={() => setShowLogout(false)}>Отмена</button>
+              <button className="btn btn-danger btn-full" onClick={handleLogout}>Выйти</button>
             </div>
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
     </div>
   );
 }
+
+// ============================================================
+//  SEGMENT PAGES (simplified)
+// ============================================================
+
+// ============================================================
+//  LEAD FORM (Universities & Business)
+// ============================================================
+
+function LeadForm({ context }) {
+  const [form, setForm] = useState({ name: '', org: '', contact: '', size: '', message: '' });
+  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => { setSent(true); setLoading(false); }, 1200);
+  };
+
+  if (sent) {
+    return (
+      <div style={{ textAlign: 'center', padding: '52px 24px' }}>
+        <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '32px' }}>✅</div>
+        <h3 style={{ marginBottom: '10px' }}>Заявка получена!</h3>
+        <p style={{ fontSize: '15px', maxWidth: '360px', margin: '0 auto' }}>
+          Наш менеджер свяжется с вами в течение 2 рабочих часов и предложит условия под ваши задачи.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="settings-fields">
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">Ваше имя и должность *</label>
+          <input type="text" className="form-input"
+            placeholder={context === 'uni' ? 'Проректор по учебной работе' : 'Руководитель / технический директор'}
+            value={form.name} onChange={set('name')} required disabled={loading} />
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">{context === 'uni' ? 'Название вуза *' : 'Название компании *'}</label>
+          <input type="text" className="form-input"
+            placeholder={context === 'uni' ? 'МГУ им. М.В. Ломоносова' : 'ООО «ТехСтрой»'}
+            value={form.org} onChange={set('org')} required disabled={loading} />
+        </div>
+      </div>
+      <div className="settings-fields">
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">Email или телефон для связи *</label>
+          <input type="text" className="form-input" placeholder="+7 (999) 000-00-00 или email@org.ru"
+            value={form.contact} onChange={set('contact')} required disabled={loading} />
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">{context === 'uni' ? 'Кол-во ВКР в год (примерно)' : 'Размер команды / объём документов'}</label>
+          <input type="text" className="form-input"
+            placeholder={context === 'uni' ? '~500 работ в год' : '~20 сотрудников, ~200 документов'}
+            value={form.size} onChange={set('size')} disabled={loading} />
+        </div>
+      </div>
+      <div className="form-group" style={{ marginBottom: 0 }}>
+        <label className="form-label">Расскажите о задаче (необязательно)</label>
+        <textarea className="form-input" style={{ resize: 'vertical', minHeight: '100px' }}
+          placeholder={context === 'uni'
+            ? 'Нужна интеграция с Moodle, кастомные шаблоны кафедры химии...'
+            : 'Нужна пакетная обработка через API, интеграция в 1С, отчёты по НИОКР...'}
+          value={form.message} onChange={set('message')} disabled={loading} />
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+        <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+          {loading ? (
+            <>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                style={{ animation: 'spin 0.8s linear infinite' }}>
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+              Отправляем...
+            </>
+          ) : 'Отправить — мы перезвоним'}
+        </button>
+        <p style={{ fontSize: '12.5px', color: 'var(--text-faint)', margin: 0 }}>
+          Без спама. Связываемся в течение 2 рабочих часов.
+        </p>
+      </div>
+    </form>
+  );
+}
+
+// ============================================================
+//  STUDENTS PAGE
+// ============================================================
+
+function StudentsPage() {
+  const [openFaq, setOpenFaq] = useState(null);
+
+  const pains = [
+    { icon: '😰', text: 'Нормоконтролёр нашёл 20 ошибок форматирования и вернул работу' },
+    { icon: '🕐', text: 'Потратил 5 часов на настройку стилей в Word — и всё равно неправильно' },
+    { icon: '📏', text: 'Перепутал поля или шрифт — пришлось переносить текст заново' },
+    { icon: '🔄', text: 'Сдаёт 3-й раз и каждый раз новые замечания по оформлению' },
+  ];
+
+  const features = [
+    { icon: '⚡', title: 'За 30 секунд', desc: 'Не нужно разбираться в стилях Word. Загрузили — получили готовый результат.' },
+    { icon: '📐', title: 'Точно по ГОСТ', desc: 'Поля 20/20/30/15 мм, TNR 14pt, интервал 1.5, отступ 1.25 см, нумерация с 3-й страницы.' },
+    { icon: '📋', title: 'Авто-оглавление', desc: 'Формируется автоматически с точками-заполнителями и номерами страниц.' },
+    { icon: '🔒', title: 'Конфиденциально', desc: 'Файлы зашифрованы. Удаляются через 24 часа. Никто не читает содержимое.' },
+    { icon: '✅', title: 'Гарантия', desc: 'Если нормоконтролёр найдёт ошибки форматирования — вернём токен или переделаем.' },
+    { icon: '💾', title: 'История файлов', desc: 'Все документы в личном кабинете. Скачивайте в любое время.' },
+  ];
+
+  const steps = [
+    { num: '01', title: 'Загрузите DOCX или PDF', desc: 'Перетащите файл или нажмите кнопку. До 50 МБ, любой объём страниц.' },
+    { num: '02', title: 'GOSTER форматирует', desc: 'Поля, шрифт, интервалы, отступы, оглавление, нумерация — всё по ГОСТ 7.32-2017.' },
+    { num: '03', title: 'Скачайте и сдавайте', desc: 'Готовый документ в кабинете через 30–60 секунд. Без замечаний по оформлению.' },
+  ];
+
+  const studentFaqs = [
+    { q: 'Влияет ли GOSTER на текст и содержание диплома?', a: 'Нет, только оформление. Мы меняем поля, шрифты, отступы, стили и оглавление. Ваш текст, цитаты, таблицы и рисунки остаются нетронутыми.' },
+    { q: 'Что если у моей кафедры особые требования?', a: 'В большинстве случаев кафедральные требования основаны на ГОСТ 7.32-2017. Если есть специфика — напишите нам, поможем разобраться.' },
+    { q: 'Как быстро обрабатывается большой диплом?', a: 'Средний диплом (80–120 страниц) форматируется за 30–60 секунд. Файлы до 50 МБ поддерживаются.' },
+    { q: 'Что значит «гарантия возврата токена»?', a: 'Если нормоконтролёр найдёт замечания именно по форматированию — покажите нам, вернём токен или переделаем бесплатно. Без споров.' },
+    { q: 'Нужно ли что-то устанавливать?', a: 'Нет. GOSTER работает в браузере на компьютере, планшете и смартфоне. Никаких плагинов и программ.' },
+  ];
+
+  return (
+    <>
+      <Navbar />
+
+      {/* Hero */}
+      <section style={{
+        background: 'linear-gradient(135deg, #0A0E27 0%, #1a1040 60%, #0F172A 100%)',
+        padding: '120px 0 80px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <div className="hero-orb-1" />
+        <div className="hero-orb-2" />
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ maxWidth: '700px' }}>
+            <div className="hero-badge" style={{ marginBottom: '24px' }}>
+              <div className="hero-dot" />
+              Для студентов
+            </div>
+            <h1 style={{ color: 'white', marginBottom: '20px' }}>
+              Диплом по ГОСТ 7.32 —{' '}
+              <span className="text-gradient-hero">готово за 30 секунд</span>
+            </h1>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.125rem', maxWidth: '520px', marginBottom: '36px' }}>
+              Загрузите DOCX — автоматически получите работу, оформленную по всем требованиям.
+              Поля, шрифты, интервалы, оглавление, нумерация. Без ошибок.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '56px' }}>
+              <a href={routes.register} className="btn btn-white btn-lg">Попробовать бесплатно</a>
+              <a href="#st-how" className="btn btn-glass btn-lg">Как это работает</a>
+            </div>
+            <div className="hero-stats">
+              {[
+                { num: '47 000+', label: 'студентов уже сдали' },
+                { num: '98%', label: 'проходят нормоконтроль с первого раза' },
+                { num: '30 сек', label: 'среднее время обработки' },
+                { num: '100%', label: 'гарантия соответствия ГОСТ' },
+              ].map((s) => (
+                <div key={s.label}>
+                  <div className="hero-stat-num">{s.num}</div>
+                  <div className="hero-stat-label">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pain points */}
+      <section className="section-sm" style={{ background: 'white' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h2>Узнаёте себя?</h2>
+            <p style={{ marginTop: '8px' }}>Каждый студент хотя бы раз сталкивался с этим</p>
+          </div>
+          <div className="grid-2" style={{ maxWidth: '800px', margin: '0 auto' }}>
+            {pains.map((p, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'flex-start', gap: '16px',
+                padding: '20px 24px', background: 'var(--bg-alt)',
+                borderRadius: 'var(--r-lg)', border: '1px solid var(--border)',
+              }}>
+                <span style={{ fontSize: '26px', flexShrink: 0 }}>{p.icon}</span>
+                <p style={{ fontSize: '14.5px', margin: 0, color: 'var(--text)' }}>{p.text}</p>
+              </div>
+            ))}
+          </div>
+          <p style={{ textAlign: 'center', marginTop: '36px', fontSize: '1.0625rem', fontWeight: '700', color: 'var(--text)' }}>
+            С GOSTER это в прошлом. Один файл — один результат.
+          </p>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section id="st-how" className="section" style={{ background: 'var(--bg-alt)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', maxWidth: '520px', margin: '0 auto 52px' }}>
+            <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Просто</div>
+            <h2>Три шага до готового диплома</h2>
+          </div>
+          <div className="grid-3">
+            {steps.map((s) => (
+              <div key={s.num} style={{
+                textAlign: 'center', padding: '36px 28px',
+                background: 'white', border: '1px solid var(--border)',
+                borderRadius: 'var(--r-xl)', boxShadow: 'var(--shadow-xs)',
+              }}>
+                <div className="step-num">{s.num}</div>
+                <h3 style={{ fontSize: '1.125rem', marginBottom: '10px' }}>{s.title}</h3>
+                <p style={{ fontSize: '14.5px' }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="section" style={{ background: 'white' }}>
+        <div className="container">
+          <div style={{ maxWidth: '520px', marginBottom: '48px' }}>
+            <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Возможности</div>
+            <h2>Всё что нужно для сдачи диплома</h2>
+          </div>
+          <div className="grid-3">
+            {features.map((f) => (
+              <div key={f.title} className="feature-card card-hover">
+                <div className="feature-icon"><span style={{ fontSize: '22px' }}>{f.icon}</span></div>
+                <h4 style={{ marginBottom: '8px' }}>{f.title}</h4>
+                <p style={{ fontSize: '14px' }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="section" style={{ background: 'var(--bg-alt)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', maxWidth: '480px', margin: '0 auto 48px' }}>
+            <h2>Студенты уже сдали. И вы сдадите</h2>
+          </div>
+          <div className="grid-3">
+            {TESTIMONIALS.map((t) => (
+              <div key={t.id} className="testimonial-card">
+                <div className="stars">{'★'.repeat(t.rating)}</div>
+                <p style={{ fontSize: '14.5px', fontStyle: 'italic', margin: 0 }}>"{t.text}"</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: 'auto' }}>
+                  <div className="avatar">{t.author[0]}</div>
+                  <div>
+                    <div style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text)' }}>{t.author}</div>
+                    <div style={{ fontSize: '12.5px', color: 'var(--text-faint)' }}>{t.uni}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="section" style={{ background: 'white' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', maxWidth: '520px', margin: '0 auto 48px' }}>
+            <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Тарифы</div>
+            <h2>Начните бесплатно</h2>
+            <p style={{ marginTop: '12px' }}>Первая проверка всегда бесплатно. Платите только за форматирование.</p>
+          </div>
+          <div className="grid-2" style={{ maxWidth: '680px', margin: '0 auto', gap: '24px' }}>
+            <div className="pricing-card">
+              <span className="badge badge-success" style={{ marginBottom: '12px' }}>Бесплатно</span>
+              <div className="pricing-price-free" style={{ fontWeight: '900', letterSpacing: '-0.04em', color: 'var(--text)' }}>0 ₽</div>
+              <p style={{ fontSize: '13.5px', marginBottom: '24px' }}>Проверка ошибок</p>
+              {['Полный анализ форматирования', 'Список всех ошибок по ГОСТ', '∞ бесплатных проверок', 'Без регистрации'].map((f) => (
+                <div key={f} className="pricing-feat">
+                  <div className="pricing-check">
+                    <svg width="10" height="10" viewBox="0 0 12 12"><polyline points="1.5,6.5 4.5,9.5 10.5,2.5" fill="none" stroke="currentColor" strokeWidth="2" /></svg>
+                  </div>
+                  {f}
+                </div>
+              ))}
+              <a href={routes.register} className="btn btn-outline btn-lg btn-full" style={{ marginTop: '24px' }}>Начать бесплатно</a>
+            </div>
+            <div className="pricing-card featured">
+              <div className="pricing-badge">ПОПУЛЯРНЫЙ ВЫБОР</div>
+              <span className="badge badge-primary" style={{ marginBottom: '12px' }}>Студент</span>
+              <div className="pricing-price">499 ₽</div>
+              <p style={{ fontSize: '13.5px', marginBottom: '24px' }}>за форматирование</p>
+              {[
+                'Полное форматирование по ГОСТ 7.32',
+                'Times New Roman, поля, интервалы',
+                'Авто-оглавление с нумерацией',
+                'Стили заголовков всех уровней',
+                'Скачивание DOCX в кабинете',
+                'Гарантия — вернём токен при ошибках',
+              ].map((f) => (
+                <div key={f} className="pricing-feat">
+                  <div className="pricing-check">
+                    <svg width="10" height="10" viewBox="0 0 12 12"><polyline points="1.5,6.5 4.5,9.5 10.5,2.5" fill="none" stroke="currentColor" strokeWidth="2" /></svg>
+                  </div>
+                  {f}
+                </div>
+              ))}
+              <a href={routes.register} className="btn btn-primary btn-lg btn-full" style={{ marginTop: '24px' }}>Отформатировать диплом</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="section" style={{ background: 'var(--bg-alt)' }}>
+        <div className="container" style={{ maxWidth: '720px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h2>Частые вопросы</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {studentFaqs.map((item, i) => (
+              <div key={i} className={`faq-item${openFaq === i ? ' open' : ''}`}>
+                <button className="faq-btn" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                  {item.q}
+                  <div className="faq-chevron">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </div>
+                </button>
+                {openFaq === i && <div className="faq-answer">{item.a}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="cta-section">
+        <div className="hero-orb-1" style={{ opacity: 0.5 }} />
+        <div className="container" style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <h2 style={{ color: 'white', marginBottom: '16px' }}>Сдайте диплом с первого раза</h2>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.0625rem', maxWidth: '460px', margin: '0 auto 36px' }}>
+            Первая проверка бесплатно. Платите только когда убедитесь, что это работает.
+          </p>
+          <a href={routes.register} className="btn btn-white btn-xl">Попробовать бесплатно</a>
+        </div>
+      </section>
+
+      <Footer />
+    </>
+  );
+}
+
+// ============================================================
+//  UNIVERSITIES PAGE
+// ============================================================
+
+function UniversitiesPage() {
+  const benefits = [
+    { icon: '📉', title: 'Нагрузка на нормоконтролёров −60%', desc: 'Типовые ошибки оформления отсеиваются до проверки. Нормоконтролёры занимаются содержанием — а не полями.' },
+    { icon: '🎨', title: 'Кастомные шаблоны', desc: 'Под требования вашего вуза, кафедры или отдельной программы. Без ограничений на число шаблонов.' },
+    { icon: '🔗', title: 'API и LMS интеграция', desc: 'Встраивается в Moodle, Blackboard, Canvas через REST API. Студенты работают в привычном интерфейсе.' },
+    { icon: '📊', title: 'Аналитика и отчётность', desc: 'Статистика ошибок по кафедрам, факультетам, программам. Видите слабые места и улучшаете стандарты.' },
+    { icon: '🏛️', title: 'Любой масштаб', desc: 'От 50 до 50 000+ работ в год. Нагрузка масштабируется автоматически без доп. затрат с вашей стороны.' },
+    { icon: '🛡️', title: 'SLA и поддержка', desc: 'Персональный менеджер, SLA 99.9%, техническая документация, обучение сотрудников, поддержка 24/7.' },
+  ];
+
+  const process = [
+    { num: '01', title: 'Подключение и настройка', desc: 'Загружаем ваш шаблон оформления. Настраиваем под требования факультетов. Подключаем LMS при необходимости.' },
+    { num: '02', title: 'Студент загружает работу', desc: 'Через кабинет GOSTER или прямо из LMS. Привычный интерфейс — не нужно обучать студентов.' },
+    { num: '03', title: 'Автоматическое форматирование', desc: 'Система применяет требования ГОСТ и шаблон вашего вуза за 30–60 секунд без участия нормоконтролёра.' },
+    { num: '04', title: 'Нормоконтролёр проверяет суть', desc: 'Вместо исправления полей и шрифтов — проверка структуры, аргументации, источников. Работа ускоряется в 3×.' },
+  ];
+
+  return (
+    <>
+      <Navbar />
+
+      {/* Hero */}
+      <section style={{
+        background: 'linear-gradient(135deg, #0A0E27 0%, #1a1040 60%, #0F172A 100%)',
+        padding: '120px 0 80px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <div className="hero-orb-1" />
+        <div className="hero-orb-2" />
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ maxWidth: '700px' }}>
+            <div className="hero-badge" style={{ marginBottom: '24px' }}>
+              <div className="hero-dot" />
+              Для университетов
+            </div>
+            <h1 style={{ color: 'white', marginBottom: '20px' }}>
+              Единый ГОСТ для всего потока —{' '}
+              <span className="text-gradient-hero">автоматически</span>
+            </h1>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.125rem', maxWidth: '560px', marginBottom: '36px' }}>
+              Снижаем нагрузку на нормоконтролёров на 60%. Кастомные шаблоны, API интеграция в LMS,
+              аналитика по ошибкам. Условия — индивидуально под ваш вуз.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <a href="#uni-form" className="btn btn-white btn-lg">Получить предложение</a>
+              <a href="#uni-process" className="btn btn-glass btn-lg">Как работает</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <div style={{ background: 'white', borderBottom: '1px solid var(--border)', padding: '32px 0' }}>
+        <div className="container">
+          <div className="stats-bar-grid">
+            {[
+              { num: '60%', label: 'снижение нагрузки на нормоконтролёров' },
+              { num: '3×', label: 'быстрее проходит нормоконтроль' },
+              { num: '50+', label: 'вузов уже работают с GOSTER' },
+              { num: '99.9%', label: 'SLA uptime' },
+            ].map((s) => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div className="stat-num">{s.num}</div>
+                <div className="stat-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Problem vs Solution */}
+      <section className="section" style={{ background: 'var(--bg-alt)' }}>
+        <div className="container">
+          <div className="check-grid" style={{ gap: '48px', alignItems: 'center' }}>
+            <div>
+              <div className="badge badge-error" style={{ marginBottom: '16px' }}>Типичная ситуация</div>
+              <h2 style={{ marginBottom: '20px' }}>Нормоконтролёр тратит 80% времени на поля и шрифты</h2>
+              <p style={{ fontSize: '1rem', marginBottom: '24px' }}>
+                Студенты сдают работы с одинаковыми ошибками — неправильные отступы, Arial вместо Times New Roman,
+                неверные поля. Нормоконтролёр возвращает работу снова и снова.
+              </p>
+              {[
+                'Поток ВКР растёт — штат не масштабируется',
+                'Одни и те же замечания — каждый семестр',
+                'Задержки из-за оформления, а не содержания',
+                'Студенты раздражены, нормоконтролёры перегружены',
+              ].map((t, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0' }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-error)', flexShrink: 0 }} />
+                  <p style={{ margin: 0, fontSize: '14.5px' }}>{t}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{
+              background: 'white', borderRadius: 'var(--r-xl)', padding: '36px',
+              border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)',
+            }}>
+              <div className="badge badge-success" style={{ marginBottom: '16px' }}>С GOSTER</div>
+              <h3 style={{ marginBottom: '20px', fontSize: '1.2rem' }}>Нормоконтролёр проверяет только суть</h3>
+              {[
+                'Оформление проверяется автоматически до сдачи',
+                'Студент получает отформатированный файл',
+                'Нормоконтролёр видит только содержательные правки',
+                'Процесс ускоряется в 3 раза',
+              ].map((t, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  padding: '10px 0', borderBottom: i < 3 ? '1px solid var(--bg-alt)' : 'none',
+                }}>
+                  <div style={{
+                    width: '22px', height: '22px', borderRadius: '50%',
+                    background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', flexShrink: 0, color: 'var(--color-success)', fontSize: '12px',
+                  }}>✓</div>
+                  <p style={{ margin: 0, fontSize: '14.5px', color: 'var(--text)' }}>{t}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section className="section" style={{ background: 'white' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', maxWidth: '520px', margin: '0 auto 52px' }}>
+            <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Возможности</div>
+            <h2>Всё для образовательного учреждения</h2>
+          </div>
+          <div className="grid-3">
+            {benefits.map((b) => (
+              <div key={b.title} className="feature-card card-hover">
+                <div className="feature-icon"><span style={{ fontSize: '22px' }}>{b.icon}</span></div>
+                <h4 style={{ marginBottom: '8px' }}>{b.title}</h4>
+                <p style={{ fontSize: '14px' }}>{b.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Process */}
+      <section id="uni-process" className="section" style={{ background: 'var(--bg-alt)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', maxWidth: '520px', margin: '0 auto 52px' }}>
+            <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Процесс</div>
+            <h2>Как это работает для вуза</h2>
+          </div>
+          <div className="grid-2" style={{ maxWidth: '900px', margin: '0 auto', gap: '24px' }}>
+            {process.map((s) => (
+              <div key={s.num} style={{
+                background: 'white', border: '1px solid var(--border)',
+                borderRadius: 'var(--r-xl)', padding: '32px',
+              }}>
+                <div className="step-num" style={{ fontSize: '3.5rem' }}>{s.num}</div>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '8px' }}>{s.title}</h3>
+                <p style={{ fontSize: '14px' }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Lead form */}
+      <section id="uni-form" className="section" style={{ background: 'white' }}>
+        <div className="container" style={{ maxWidth: '780px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+            <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Индивидуальные условия</div>
+            <h2>Получите предложение для вашего вуза</h2>
+            <p style={{ marginTop: '12px', fontSize: '1.0625rem' }}>
+              Цены формируются под размер потока, набор функций и необходимость интеграции.
+              Заполните форму — менеджер свяжется и подберёт оптимальный вариант.
+            </p>
+          </div>
+          <div style={{
+            background: 'var(--bg-alt)', border: '1px solid var(--border)',
+            borderRadius: 'var(--r-xl)', padding: '40px',
+          }}>
+            <LeadForm context="uni" />
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </>
+  );
+}
+
+// ============================================================
+//  BUSINESS PAGE
+// ============================================================
+
+function BusinessPage() {
+  const useCases = [
+    { icon: '🔬', title: 'НИОКР и НИР', desc: 'Отчёты по научно-исследовательским работам по ГОСТ 7.32-2017.' },
+    { icon: '📋', title: 'Технические задания', desc: 'ТЗ и проектная документация по ГОСТ 2.105 (ЕСКД).' },
+    { icon: '🏗️', title: 'Тендерная документация', desc: 'Описание работ, технические задания, отчёты по госзакупкам.' },
+    { icon: '📊', title: 'Проектные отчёты', desc: 'Технические отчёты, акты, заключения по стандартам ГОСТ.' },
+    { icon: '🎓', title: 'Корпоративное обучение', desc: 'Учебные материалы, методические пособия, регламенты.' },
+    { icon: '📁', title: 'Массовый документооборот', desc: 'Пакетная обработка сотен документов через API без ручного труда.' },
+  ];
+
+  const features = [
+    { icon: '🔌', title: 'REST API', desc: 'Полноценный REST API с документацией. Интеграция в 1С, SharePoint, любую СЭД за несколько часов.' },
+    { icon: '⚡', title: 'Пакетная обработка', desc: 'Сотни документов параллельно. Очередь с приоритетами, webhook-уведомления о завершении.' },
+    { icon: '📝', title: 'Несколько стандартов', desc: 'ГОСТ 7.32-2017, ГОСТ 2.105 (ЕСКД), ГОСТ Р 7.0.11 (диссертации). Один сервис — все стандарты.' },
+    { icon: '👥', title: 'Командный доступ', desc: 'До 50+ пользователей. Управление ролями, отделами и правами доступа централизованно.' },
+    { icon: '📈', title: 'Отчётность', desc: 'Детальная аналитика по расходованию, активности пользователей, обработанным документам.' },
+    { icon: '🤝', title: 'Персональный менеджер', desc: 'Выделенный менеджер, SLA 99.9%, поддержка в рабочие часы, оперативное решение задач.' },
+  ];
+
+  return (
+    <>
+      <Navbar />
+
+      {/* Hero */}
+      <section style={{
+        background: 'linear-gradient(135deg, #0A0E27 0%, #1a1040 60%, #0F172A 100%)',
+        padding: '120px 0 80px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <div className="hero-orb-1" />
+        <div className="hero-orb-2" />
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ maxWidth: '720px' }}>
+            <div className="hero-badge" style={{ marginBottom: '24px' }}>
+              <div className="hero-dot" />
+              Для компаний
+            </div>
+            <h1 style={{ color: 'white', marginBottom: '20px' }}>
+              Техдокументация по ГОСТ —{' '}
+              <span className="text-gradient-hero">автоматически в ваших процессах</span>
+            </h1>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.125rem', maxWidth: '580px', marginBottom: '36px' }}>
+              REST API, пакетная обработка, несколько стандартов ГОСТ. Встраивается в 1С, SharePoint и любую СЭД.
+              Условия — индивидуально под ваш объём и задачи.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <a href="#biz-form" className="btn btn-white btn-lg">Обсудить интеграцию</a>
+              <a href="#biz-usecases" className="btn btn-glass btn-lg">Примеры использования</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <div style={{ background: 'white', borderBottom: '1px solid var(--border)', padding: '32px 0' }}>
+        <div className="container">
+          <div className="stats-bar-grid">
+            {[
+              { num: '200+', label: 'компаний используют API' },
+              { num: '3 ГОСТ', label: 'стандарта поддерживается' },
+              { num: '99.9%', label: 'SLA uptime' },
+              { num: '< 60 сек', label: 'на документ в пакете' },
+            ].map((s) => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div className="stat-num">{s.num}</div>
+                <div className="stat-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Use cases */}
+      <section id="biz-usecases" className="section" style={{ background: 'var(--bg-alt)' }}>
+        <div className="container">
+          <div style={{ maxWidth: '520px', marginBottom: '52px' }}>
+            <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Применение</div>
+            <h2>Для каких документов</h2>
+            <p style={{ marginTop: '12px', fontSize: '1.0625rem' }}>
+              GOSTER форматирует любые документы, которые требуют соответствия ГОСТ.
+            </p>
+          </div>
+          <div className="grid-3">
+            {useCases.map((u) => (
+              <div key={u.title} style={{
+                background: 'white', border: '1px solid var(--border)',
+                borderRadius: 'var(--r-xl)', padding: '28px',
+                transition: 'all var(--t)',
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+              >
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>{u.icon}</div>
+                <h4 style={{ marginBottom: '8px' }}>{u.title}</h4>
+                <p style={{ fontSize: '14px' }}>{u.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="section" style={{ background: 'white' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', maxWidth: '520px', margin: '0 auto 52px' }}>
+            <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Корпоративные функции</div>
+            <h2>Всё для команды и интеграции</h2>
+          </div>
+          <div className="grid-3">
+            {features.map((f) => (
+              <div key={f.title} className="feature-card card-hover">
+                <div className="feature-icon"><span style={{ fontSize: '22px' }}>{f.icon}</span></div>
+                <h4 style={{ marginBottom: '8px' }}>{f.title}</h4>
+                <p style={{ fontSize: '14px' }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* API teaser */}
+      <section className="section-sm" style={{ background: 'var(--bg-alt)' }}>
+        <div className="container">
+          <div className="check-grid" style={{ gap: '56px', alignItems: 'center' }}>
+            <div>
+              <div className="badge badge-primary" style={{ marginBottom: '16px' }}>REST API</div>
+              <h2 style={{ marginBottom: '16px' }}>Встраивается в ваш процесс</h2>
+              <p style={{ fontSize: '1rem', marginBottom: '24px' }}>
+                Отправьте DOCX на наш эндпоинт — получите отформатированный файл.
+                Асинхронная обработка, webhooks, очередь приоритетов.
+              </p>
+              {[
+                'OpenAPI 3.0 документация + Sandbox',
+                'SDK для Python, Node.js, PHP',
+                'Webhook-уведомления о статусе',
+                'Rate-limit и retry политики',
+                'Тестовая среда без лимитов',
+              ].map((t, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 0' }}>
+                  <div style={{
+                    width: '20px', height: '20px', borderRadius: '50%',
+                    background: 'var(--color-primary-light)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0, color: 'var(--color-primary)', fontSize: '11px',
+                  }}>✓</div>
+                  <p style={{ margin: 0, fontSize: '14px', color: 'var(--text)' }}>{t}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{
+              background: '#0F172A', borderRadius: 'var(--r-xl)', padding: '28px',
+              fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.75', color: '#94A3B8',
+              border: '1px solid rgba(255,255,255,0.07)',
+            }}>
+              <div style={{ color: '#64748B', marginBottom: '12px', fontSize: '11px', letterSpacing: '0.05em' }}>POST /api/v1/format</div>
+              <div><span style={{ color: '#818CF8' }}>{'{'}</span></div>
+              <div style={{ paddingLeft: '18px' }}>
+                <span style={{ color: '#7DD3FC' }}>"standard"</span><span>: </span>
+                <span style={{ color: '#86EFAC' }}>"GOST_7.32"</span><span>,</span>
+              </div>
+              <div style={{ paddingLeft: '18px' }}>
+                <span style={{ color: '#7DD3FC' }}>"file_b64"</span><span>: </span>
+                <span style={{ color: '#86EFAC' }}>"&lt;base64&gt;"</span><span>,</span>
+              </div>
+              <div style={{ paddingLeft: '18px' }}>
+                <span style={{ color: '#7DD3FC' }}>"webhook_url"</span><span>: </span>
+                <span style={{ color: '#86EFAC' }}>"https://..."</span>
+              </div>
+              <div><span style={{ color: '#818CF8' }}>{'}'}</span></div>
+              <div style={{ margin: '14px 0 6px', color: '#64748B', fontSize: '11px' }}>← 202 Accepted</div>
+              <div><span style={{ color: '#818CF8' }}>{'{'}</span></div>
+              <div style={{ paddingLeft: '18px' }}>
+                <span style={{ color: '#7DD3FC' }}>"job_id"</span><span>: </span>
+                <span style={{ color: '#86EFAC' }}>"fmt_a3b9c2d1"</span><span>,</span>
+              </div>
+              <div style={{ paddingLeft: '18px' }}>
+                <span style={{ color: '#7DD3FC' }}>"status"</span><span>: </span>
+                <span style={{ color: '#86EFAC' }}>"processing"</span>
+              </div>
+              <div><span style={{ color: '#818CF8' }}>{'}'}</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Lead form */}
+      <section id="biz-form" className="section" style={{ background: 'white' }}>
+        <div className="container" style={{ maxWidth: '780px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+            <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Индивидуальные условия</div>
+            <h2>Обсудим интеграцию под ваши задачи</h2>
+            <p style={{ marginTop: '12px', fontSize: '1.0625rem' }}>
+              Расскажите о своём проекте — подберём объём, стандарты и стоимость.
+              Ответим в течение 2 рабочих часов.
+            </p>
+          </div>
+          <div style={{
+            background: 'var(--bg-alt)', border: '1px solid var(--border)',
+            borderRadius: 'var(--r-xl)', padding: '40px',
+          }}>
+            <LeadForm context="biz" />
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </>
+  );
+}
+
+// ============================================================
+//  APP ROUTER
+// ============================================================
 
 export default function App() {
   const [route, setRoute] = useState(getRoute());
@@ -1145,11 +2621,9 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onChange);
   }, []);
 
-  // Защита маршрута /cabinet - если нет токена, перенаправляем на логин
   if (route === routes.cabinet) {
     const token = localStorage.getItem('token');
     if (!token) {
-      console.warn('⚠️ Попытка доступа к /cabinet без токена. Перенаправление на логин...');
       window.location.hash = routes.login;
       return null;
     }
@@ -1158,5 +2632,8 @@ export default function App() {
 
   if (route === routes.login) return <LoginPage />;
   if (route === routes.register) return <Register onSuccess={() => { window.location.hash = routes.login; }} />;
+  if (route === routes.students) return <StudentsPage />;
+  if (route === routes.business) return <BusinessPage />;
+  if (route === routes.universities) return <UniversitiesPage />;
   return <Landing />;
 }
