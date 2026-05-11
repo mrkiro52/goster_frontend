@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Register } from './Register';
 import { LoginPage } from './Login';
 import { Navbar } from './Navbar';
+import { API_BASE_URL, checkDocument, formatDocument, downloadFormattedFile } from './config/api';
 
 // ============================================================
 //  DATA
@@ -302,7 +303,7 @@ function Hero() {
           {/* Stats */}
           <div className="hero-stats">
             {[
-              { num: '2 500+', label: 'дипломов отформатировано' },
+              { num: '100+', label: 'дипломов отформатировано' },
               { num: '98%', label: 'приняты без замечаний' },
               { num: '30 сек', label: 'среднее время обработки' },
               { num: 'ГОСТ 7.32', label: '100% соответствие' },
@@ -524,32 +525,32 @@ function GostSpecs() {
 // ============================================================
 
 function FreeCheckBlock() {
+  const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
   const [checking, setChecking] = useState(false);
   const [results, setResults] = useState(null);
+  const [checkError, setCheckError] = useState('');
   const [drag, setDrag] = useState(false);
 
-  const handleCheck = (e) => {
+  const handleCheck = async (e) => {
     e.preventDefault();
-    if (!fileName) return;
+    if (!file) return;
     setChecking(true);
     setResults(null);
+    setCheckError('');
 
-    setTimeout(() => {
-      setResults({
-        score: 62,
-        issues: [
-          { type: 'error', text: 'Поле сверху 25 мм вместо 20 мм по ГОСТ 7.32' },
-          { type: 'error', text: 'Шрифт Arial вместо Times New Roman' },
-          { type: 'error', text: 'Нумерация страниц отсутствует' },
-          { type: 'warning', text: 'Межстрочный интервал 1.15 вместо 1.5' },
-          { type: 'warning', text: 'Заголовки 2-го уровня не соответствуют стилю' },
-          { type: 'success', text: 'Оглавление сформировано корректно' },
-          { type: 'success', text: 'Абзацный отступ соответствует требованиям' },
-        ],
-      });
+    try {
+      console.log('📤 Инициирование проверки документа...');
+      const result = await checkDocument(file);
+      
+      console.log('📊 Результаты получены:', result);
+      setResults(result);
+    } catch (err) {
+      console.error('❌ Ошибка при проверке:', err);
+      setCheckError(err.message);
+    } finally {
       setChecking(false);
-    }, 2200);
+    }
   };
 
   const ScoreColor = (n) => n >= 80 ? '#10B981' : n >= 60 ? '#F59E0B' : '#EF4444';
@@ -578,7 +579,7 @@ function FreeCheckBlock() {
                 e.preventDefault();
                 setDrag(false);
                 const f = e.dataTransfer.files[0];
-                if (f) setFileName(f.name);
+                if (f) { setFile(f); setFileName(f.name); }
               }}
             >
               <div className="upload-icon-wrap">
@@ -614,7 +615,7 @@ function FreeCheckBlock() {
                   style={{ display: 'none' }}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
-                    if (f) setFileName(f.name);
+                    if (f) { setFile(f); setFileName(f.name); }
                   }}
                   disabled={checking}
                 />
@@ -654,6 +655,15 @@ function FreeCheckBlock() {
                 </>
               ) : 'Проверить на соответствие ГОСТ'}
             </button>
+
+            {checkError && (
+              <div className="form-alert error" style={{ marginTop: '12px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {checkError}
+              </div>
+            )}
 
             {/* Trust */}
             <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
@@ -1303,10 +1313,63 @@ function Cabinet() {
     return Math.round(((stepIdx + 1) / pipelineSteps.length) * 100);
   }, [processing, stepIdx]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setProcessing(true);
-    setStepIdx(0);
+    
+    if (!fileName) {
+      console.warn('⚠️ Файл не выбран');
+      return;
+    }
+
+    try {
+      setProcessing(true);
+      setStepIdx(0);
+
+      // Получаем файл из input'а
+      const fileInput = document.querySelector('input[type="file"]');
+      if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+        throw new Error('Файл не найден в input');
+      }
+
+      const file = fileInput.files[0];
+
+      console.log('🚀 Начинаем процесс форматирования...');
+
+      // Получаем токен из localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('JWT токен не найден. Требуется авторизация.');
+      }
+
+      console.log('🔐 Токен получен из localStorage');
+
+      // Форматируем документ
+      const formattedBlob = await formatDocument(file, token);
+
+      // Скачиваем отформатированный файл
+      downloadFormattedFile(formattedBlob, fileName);
+
+      // Добавляем в список документов
+      const now = new Date();
+      const dt = `${now.toLocaleDateString('ru-RU')} ${now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+      setDocuments((prev) => [
+        { id: Date.now(), name: fileName, status: 'ready', date: dt },
+        ...prev,
+      ]);
+
+      setSuccessMsg('✓ Документ отформатирован и скачан!');
+      setFileName('');
+      setTab('documents');
+
+      console.log('✅ Форматирование успешно завершено');
+    } catch (error) {
+      console.error('❌ Ошибка при форматировании:', error.message);
+      alert(`Ошибка: ${error.message}`);
+    } finally {
+      setProcessing(false);
+      setStepIdx(-1);
+      setTimeout(() => setSuccessMsg(''), 4000);
+    }
   };
 
   const handleLogout = () => {

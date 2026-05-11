@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_BASE_URL } from './config/api';
+import { registerUser } from './config/api';
 
 const routes = {
   home: '#/',
@@ -33,23 +33,11 @@ export function Register({ onSuccess }) {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role: 'user' }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || data.message || 'Ошибка регистрации');
-      }
-
+      await registerUser(email, password);
       setSuccess(true);
       setEmail('');
       setPassword('');
       setPasswordConfirm('');
-
       setTimeout(() => {
         if (onSuccess) onSuccess();
         window.location.hash = routes.login;

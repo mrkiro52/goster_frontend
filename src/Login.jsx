@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_BASE_URL } from './config/api';
+import { loginUser } from './config/api';
 
 const routes = {
   home: '#/',
@@ -19,20 +19,8 @@ export function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
-      const res = await fetch(`${API_BASE_URL}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || data.message || 'Ошибка авторизации');
-      }
-
+      const data = await loginUser(email, password);
       const token = data.access_token || data.token;
       if (token) {
         localStorage.setItem('token', token);
